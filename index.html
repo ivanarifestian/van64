@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAN KARTU - SELAMAT DATANG</title>
+    <title>VAN KARTU - Aplikasi Kartu Pelajar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -128,7 +130,7 @@
     <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-lg z-50 overflow-y-auto">
         <div class="modal-content py-4 text-left px-6">
             <div class="flex justify-between items-center pb-3">
-                <p id="modal-title" class="text-2xl font-bold text-gray-800">Hallo</p>
+                <p id="modal-title" class="text-2xl font-bold text-gray-800">Judul</p>
                 <div class="modal-close cursor-pointer z-50" onclick="closeModal()">
                     <svg class="fill-current text-gray-500 hover:text-gray-900" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
                         <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
@@ -136,7 +138,7 @@
                 </div>
             </div>
             <div id="modal-body" class="my-5">
-                <p>Assalamualaikum.</p>
+                <p>Isi pesan modal.</p>
             </div>
             <div id="modal-footer" class="flex justify-end pt-2">
                 <button id="modal-confirm-btn" class="px-4 bg-blue-600 p-3 rounded-lg text-white hover:bg-blue-700 mr-2" style="display: none;">Konfirmasi</button>
@@ -164,13 +166,13 @@
     ];
 
     let schoolProfile = {
-        nama_sekolah: 'SMAN 1 GUNUNGKENCANA',
-        alamat: 'Jl. Cijaku-Gunungkencana',
+        nama_sekolah: 'SMK Negeri 1 Jakarta',
+        alamat: 'Jl. Raya Pendidikan No. 10',
         telepon: '021-12345678',
-        logo: 'https://iili.io/Fsajyga.png',
-        kepala_sekolah: 'ferdiansyah, M.Pd',
+        logo: 'https://placehold.co/100x100/1e3a8a/ffffff?text=Logo',
+        kepala_sekolah: 'Drs. H. Ahmad Fauzi, M.Pd',
         ttd_kepsek: 'https://placehold.co/150x50/cccccc/333333?text=Tanda+Tangan',
-        background: 'https://iili.io/FscookQ.png'
+        background: 'https://placehold.co/320x200/1e3a8a/ffffff?text=Background'
     };
 
     // === Variabel Global & DOM Elements ===
@@ -236,7 +238,7 @@
                     <div class="flex flex-col items-center mb-6">
                         <img src="${schoolProfile.logo}" alt="Logo Sekolah" class="w-24 h-24 mb-4 rounded-full border-4 border-blue-600 p-1">
                         <h2 class="text-3xl font-bold text-gray-800 text-center">Login</h2>
-                        <p class="text-sm text-gray-500 mt-1">SELAMAT DATANG DI VAN KARTU PELAJAR</p>
+                        <p class="text-sm text-gray-500 mt-1">Aplikasi Kartu Pelajar VAN KARTU</p>
                     </div>
                     <form id="login-form">
                         <div class="mb-4">
@@ -788,7 +790,7 @@
                 <!-- Tampilan Kartu Pelajar -->
                 <div class="flex-1 lg:max-w-md">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">Kartu Pelajar Saya</h3>
-                    <div class="card-container cursor-pointer" onclick="this.querySelector('.card').classList.toggle('is-flipped')">
+                    <div id="student-card-wrapper" class="card-container cursor-pointer" onclick="this.querySelector('.card').classList.toggle('is-flipped')">
                         <div class="card">
                             <!-- Sisi Depan Kartu -->
                             <div class="card-face card-front" style="background-image: url(${schoolProfile.background}); background-size: cover; background-position: center;">
@@ -832,8 +834,11 @@
                         </div>
                     </div>
                     <div class="flex justify-center gap-4 mt-4">
-                        <button id="download-card-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200 shadow-md">
+                        <button id="download-card-png-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200 shadow-md">
                             Unduh Kartu (PNG)
+                        </button>
+                        <button id="download-card-pdf-btn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md">
+                            Unduh Kartu (PDF)
                         </button>
                     </div>
                 </div>
@@ -911,10 +916,45 @@
             }
         });
         
-        document.getElementById('download-card-btn').addEventListener('click', () => {
-            // Function to generate and download PNG
-            // Requires a library like html2canvas, which is not included here for simplicity
-            showModal('Unduh Kartu', 'Fitur unduh kartu sedang dikembangkan. Silakan screenshot halaman ini.');
+        document.getElementById('download-card-png-btn').addEventListener('click', () => {
+             // Dapatkan elemen kartu yang ingin diunduh
+            const cardElement = document.querySelector('.card');
+            
+            // Gunakan html2canvas untuk mengubah elemen menjadi gambar
+            html2canvas(cardElement, { scale: 2 }).then(canvas => {
+                // Konversi kanvas menjadi URL data gambar (PNG)
+                const image = canvas.toDataURL('image/png', 1.0);
+                
+                // Buat elemen <a> untuk mengunduh gambar
+                const link = document.createElement('a');
+                link.download = `kartu-pelajar-${student.nisn}.png`;
+                link.href = image;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+
+        document.getElementById('download-card-pdf-btn').addEventListener('click', () => {
+            // Dapatkan elemen kartu yang ingin diunduh
+            const cardElement = document.querySelector('.card');
+            
+            // Gunakan html2canvas untuk mengubah elemen menjadi gambar
+            html2canvas(cardElement, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [320, 200] // ukuran kartu
+                });
+                
+                // Tambahkan gambar kartu ke PDF
+                pdf.addImage(imgData, 'PNG', 0, 0, 320, 200);
+                
+                // Simpan PDF
+                pdf.save(`kartu-pelajar-${student.nisn}.pdf`);
+            });
         });
     }
 
@@ -939,4 +979,3 @@
 
 </body>
 </html>
-
