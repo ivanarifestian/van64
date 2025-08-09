@@ -14,8 +14,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .card-container {
-            width: 3370px; /* Lebar kartu standar */
-            height: 2125px; /* Tinggi kartu standar */
+            width: 560px; /* Lebar kartu standar */
+            height: 320px; /* Tinggi kartu standar */
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             background-size: cover;
             background-position: center;
@@ -766,7 +766,7 @@
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [3370, 2125] // Ukuran kartu
+                    format: [560, 320] // Ukuran kartu
                 });
 
                 for (let i = 0; i < selectedIds.length; i++) {
@@ -783,7 +783,7 @@
                     if (i > 0) {
                         pdf.addPage();
                     }
-                    pdf.addImage(imgData, 'PNG', 0, 0, 3370, 2125);
+                    pdf.addImage(imgData, 'PNG', 0, 0, 560, 320);
                     
                     // Hapus dari body setelah selesai
                     document.body.removeChild(cardElement);
@@ -830,9 +830,9 @@
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [3370, 2125]
+                    format: [560, 320]
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, 337, 213);
+                pdf.addImage(imgData, 'PNG', 0, 0, 560, 320);
                 pdf.save(`kartu-pelajar-${state.currentUser.nisn}.pdf`);
             });
 
