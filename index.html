@@ -3,383 +3,253 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VAN KARTU - SELAMAT DATANG</title>
+  <title>VAN KARTU — SELAMAT DATANG</title>
   <style>
     :root{
-      --tosca: #20c997; /* warna biru tosca / teal */
-      --tosca-dark: #179a80;
-      --bg: linear-gradient(135deg, rgba(32,201,151,0.12), rgba(32,201,151,0.05));
-      --card: #ffffff;
-      --muted: #6b7280;
+      --tosca: #1abc9c; /* tosca biru-tosca */
+      --tosca-dark: #14917b;
+      --card-bg: rgba(255,255,255,0.95);
+      --muted: #5b6b6b;
       --glass: rgba(255,255,255,0.08);
+      --radius: 12px;
       font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     }
-    html,body{height:100%;}
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      background: var(--bg), radial-gradient(800px 600px at 10% 10%, rgba(32,201,151,0.06), transparent), radial-gradient(600px 400px at 90% 90%, rgba(32,201,151,0.04), transparent);
-      color:#0f172a;
+      min-height:100%;
+      background: linear-gradient(135deg, var(--tosca) 0%, #36d1dc 100%);
+      color:#083030;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:24px;
+      padding:32px;
     }
 
-    .app {
+    .container{
       width:1100px;
       max-width:100%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.82));
-      border-radius:16px;
-      box-shadow:0 10px 30px rgba(15,23,42,0.12);
-      overflow:hidden;
       display:grid;
-      grid-template-columns: 380px 1fr;
-      min-height:640px;
+      grid-template-columns: 420px 1fr;
+      gap:28px;
+      align-items:start;
     }
 
-    /* SIDEBAR */
-    .sidebar{
+    /* Left - Login Card */
+    .card{
+      background:var(--card-bg);
+      border-radius:var(--radius);
       padding:28px;
-      background: linear-gradient(180deg, rgba(32,201,151,0.08), rgba(32,201,151,0.02));
-      border-right:1px solid rgba(15,23,42,0.03);
+      box-shadow: 0 8px 24px rgba(10, 30, 30, 0.18);
+    }
+
+    .brand{
+      display:flex;align-items:center;gap:14px;margin-bottom:18px
     }
     .logo{
-      display:flex;align-items:center;gap:12px;margin-bottom:18px;
+      width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,var(--tosca-dark),var(--tosca));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px
     }
-    .logo .mark{width:56px;height:56px;border-radius:10px;background:var(--tosca);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;box-shadow:0 6px 18px rgba(32,201,151,0.18)}
-    .logo h1{font-size:16px;margin:0}
-    .logo p{margin:0;font-size:12px;color:var(--muted)}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
 
-    .nav{margin-top:18px}
-    .nav button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;border:0;background:transparent;color:var(--tosca-dark);font-weight:600;cursor:pointer}
-    .nav button.active{background:rgba(32,201,151,0.12)}
-
-    .small{font-size:13px;color:var(--muted);margin-top:16px}
-
-    /* MAIN */
-    .main{padding:28px}
-    .topbar{display:flex;justify-content:space-between;align-items:center}
-    .search{display:flex;gap:8px;align-items:center}
-    .search input{padding:10px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);min-width:220px}
-    .btn{background:var(--tosca);border:none;padding:10px 14px;border-radius:10px;color:white;font-weight:700;cursor:pointer}
-
-    /* Login Card */
-    .login-card{max-width:380px;margin:40px auto;padding:24px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));box-shadow:0 8px 30px rgba(15,23,42,0.06)}
-    .login-card h2{margin:0 0 8px}
-    .form-group{display:flex;flex-direction:column;gap:8px;margin:12px 0}
-    .form-group input{padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)}
-    .muted{font-size:13px;color:var(--muted)}
-
-    /* Dashboard widgets */
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
-    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
-    .card h3{margin:0;font-size:14px}
-    .stat{font-size:22px;font-weight:800;margin-top:8px}
-
-    /* table */
-    table{width:100%;border-collapse:collapse;margin-top:18px}
-    thead th{background:transparent;text-align:left;padding:10px 8px;color:var(--muted);font-size:13px}
-    tbody td{padding:10px 8px;border-top:1px solid rgba(15,23,42,0.04)}
-    .avatar{width:48px;height:48px;border-radius:8px;object-fit:cover}
-
-    /* student profile */
-    .profile{display:flex;gap:20px;align-items:flex-start}
-    .profile .photo{width:160px;height:200px;border-radius:8px;background:var(--glass);display:flex;align-items:center;justify-content:center}
-    .profile .info{flex:1}
-
-    .card-preview{width:360px;height:220px;border-radius:12px;padding:14px;background:linear-gradient(180deg,var(--tosca),var(--tosca-dark));color:white;display:flex;flex-direction:column;justify-content:space-between}
-
-    footer{font-size:13px;color:var(--muted);margin-top:20px}
-
-    /* responsive */
-    @media (max-width:980px){
-      .app{grid-template-columns:1fr;min-height:100vh}
-      .sidebar{display:flex;justify-content:space-between;align-items:center}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab{
+      flex:1;padding:10px;border-radius:10px;text-align:center;cursor:pointer;font-weight:600;background:transparent;border:2px solid transparent
     }
+    .tab.active{background:var(--glass);border-color:rgba(255,255,255,0.14)}
 
+    .form-group{margin-bottom:12px}
+    label{display:block;font-size:13px;color:#274141;margin-bottom:6px}
+    input[type=text], input[type=password], input[type=file]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(7,48,48,0.08);background:#fbffff}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--tosca-dark);color:white;font-weight:700;border:none;cursor:pointer}
+    .btn.ghost{background:transparent;color:white;border:2px solid rgba(255,255,255,0.22)}
+
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Right - Preview */
+    .preview{
+      display:flex;flex-direction:column;gap:18px
+    }
+    .card.preview-card{padding:18px;background:rgba(255,255,255,0.06);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.06)}
+
+    .student-card{
+      width:320px;height:200px;border-radius:12px;overflow:hidden;display:flex;box-shadow:0 12px 40px rgba(3,30,30,0.18);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9));
+    }
+    .student-card .left{width:38%;background:linear-gradient(180deg,var(--tosca),var(--tosca-dark));padding:12px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .student-card .left img{width:84px;height:84px;border-radius:8px;object-fit:cover;border:3px solid rgba(255,255,255,0.18)}
+    .student-card .right{padding:12px;flex:1}
+    .muted{color:var(--muted)}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr;}
+      .student-card{width:100%}
+    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="logo">
-        <div class="mark">VK</div>
+  <div class="container">
+    <div class="card">
+      <div class="brand">
+        <div class="logo">VN</div>
         <div>
           <h1>VAN KARTU</h1>
-          <p>Manajemen Kartu Pelajar</p>
+          <p class="lead">Sistem manajemen kartu pelajar — demo tampilan dengan background biru tosca.</p>
         </div>
       </div>
 
-      <nav class="nav">
-        <button class="active" data-view="dashboard">Dashboard</button>
-        <button data-view="students">Data Siswa</button>
-        <button data-view="import">Import Excel</button>
-        <button data-view="settings">Pengaturan</button>
-        <button data-view="student-view">Masuk sebagai Siswa</button>
-      </nav>
+      <div class="tabs" role="tablist" aria-label="role tabs">
+        <div class="tab active" data-role="admin">Admin</div>
+        <div class="tab" data-role="student">Siswa</div>
+      </div>
 
-      <div class="small">Versi demo • Tidak terkoneksi backend</div>
-    </aside>
-
-    <main class="main">
-      <div class="topbar">
-        <div class="search">
-          <input id="searchInput" placeholder="Cari nama atau NISN..." />
-          <button class="btn" onclick="alert('Demo: fitur search belum terhubung')">Cari</button>
+      <form id="loginForm" autocomplete="off">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" placeholder="Van64 (Admin) atau NISN (Siswa)" />
         </div>
-        <div>
-          <button class="btn" id="btnLogout" onclick="resetToLogin()">Logout</button>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Password" />
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:8px">
+          <button type="button" class="btn" id="loginBtn">Masuk</button>
+          <button type="button" class="btn ghost" id="downloadTemplate">Download Template Excel</button>
+        </div>
+
+        <p class="small" style="margin-top:10px">Default admin: <strong>Van64</strong> / <strong>Van1909</strong></p>
+      </form>
+
+      <hr style="margin:18px 0;border:none;border-top:1px solid rgba(3,30,30,0.06)" />
+
+      <div>
+        <h3 style="margin:0 0 8px 0">Pengaturan Cepat</h3>
+        <div class="form-group">
+          <label>Upload Logo Sekolah</label>
+          <input type="file" accept="image/*" id="logoUpload" />
+        </div>
+        <div class="form-group">
+          <label>Upload Tanda Tangan Kepala Sekolah</label>
+          <input type="file" accept="image/*" id="ttdUpload" />
+        </div>
+      </div>
+    </div>
+
+    <div class="preview">
+      <div class="card preview-card">
+        <h3 style="margin:0 0 8px 0;color:white">Preview Kartu Pelajar</h3>
+        <p class="small" style="margin:0 0 12px 0;color:rgba(255,255,255,0.85)">Contoh gaya kartu — warna latar mengikuti palet tosca.</p>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div class="student-card">
+            <div class="left">
+              <img src="https://picsum.photos/seed/pelajar1/200/200" alt="foto siswa" />
+            </div>
+            <div class="right">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-size:14px;font-weight:800">SMAN 1 GUNUNGKENCANA</div>
+                  <div class="muted" style="font-size:12px">Jl. Contoh No.1</div>
+                </div>
+                <div style="font-size:12px;color:var(--muted)">NISN: 1234567890</div>
+              </div>
+
+              <div style="margin-top:14px">
+                <div style="font-weight:800;font-size:16px">Ivan Arifestian</div>
+                <div class="muted" style="margin-top:6px">Jenis Kelamin: L | TTL: 2006-03-05</div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:end;margin-top:18px">
+                <div style="font-size:12px;color:var(--muted)">Kepala Sekolah</div>
+                <div style="text-align:right">
+                  <img src="https://picsum.photos/seed/ttd/120/40" alt="ttd" style="height:34px;object-fit:contain;opacity:0.9"/>
+                  <div style="font-size:12px;color:var(--muted)">Drs. Kepala</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- contoh kartu kecil tambahan -->
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="width:160px;height:96px;background:rgba(255,255,255,0.9);border-radius:8px;padding:8px;display:flex;align-items:center;gap:8px">
+              <img src="https://picsum.photos/seed/p2/80/80" style="width:56px;height:56px;border-radius:6px;object-fit:cover"/>
+              <div>
+                <div style="font-weight:700;font-size:13px">Siti Nur</div>
+                <div class="muted" style="font-size:12px">NISN: 9876543210</div>
+              </div>
+            </div>
+
+            <div style="width:160px;height:96px;background:linear-gradient(180deg,var(--tosca),var(--tosca-dark));border-radius:8px;padding:8px;color:white;display:flex;align-items:center;gap:8px">
+              <img src="https://picsum.photos/seed/p3/100/100" style="width:56px;height:56px;border-radius:6px;object-fit:cover;border:2px solid rgba(255,255,255,0.14)"/>
+              <div>
+                <div style="font-weight:700;font-size:13px">Budi Santoso</div>
+                <div style="font-size:12px;opacity:0.9">NISN: 1122334455</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- VIEWS -->
-      <section id="view-dashboard" class="view">
-        <h2>Dashboard Admin</h2>
-        <div class="grid">
-          <div class="card">
-            <h3>Total Siswa</h3>
-            <div class="stat" id="statTotal">1200</div>
-            <div class="muted">Terdaftar</div>
-          </div>
-          <div class="card">
-            <h3>Kartu Siap Cetak</h3>
-            <div class="stat">1120</div>
-            <div class="muted">PDF tersedia</div>
-          </div>
-          <div class="card">
-            <h3>Permintaan Perbaikan</h3>
-            <div class="stat">8</div>
-            <div class="muted">Menunggu persetujuan</div>
-          </div>
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Informasi Singkat</h3>
+        <p class="small">Halaman ini adalah template statis HTML/CSS. Jika kamu mau, aku bisa tambahkan interaktivitas (validasi login sederhana), atau mengubah tampilan menjadi halaman React/Blade/Laravel sesuai stack pilihanmu.</p>
+
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="exportPng">Download Kartu PNG</button>
+          <button class="btn ghost" id="exportPdf">Export PDF</button>
         </div>
-
-        <div class="card" style="margin-top:18px">
-          <h3>Preview Kartu (Contoh)</h3>
-          <div style="display:flex;gap:18px;align-items:center;margin-top:12px">
-            <div class="card-preview">
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <div>
-                  <div style="font-weight:700">SMK VAN CENDEKIA</div>
-                  <div style="font-size:12px;opacity:0.9">Kartu Pelajar</div>
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:center">
-                  <div style="width:64px;height:64px;background:#ffffff22;border-radius:8px"></div>
-                  <div style="font-size:11px;margin-top:6px">Logo</div>
-                </div>
-              </div>
-
-              <div style="display:flex;gap:12px;align-items:center">
-                <div style="width:84px;height:104px;background:#ffffff22;border-radius:8px"></div>
-                <div>
-                  <div style="font-size:14px;font-weight:800">Nama Siswa</div>
-                  <div style="font-size:13px">NISN: 0123456789</div>
-                  <div style="font-size:13px">NIS: 2021001</div>
-                </div>
-              </div>
-
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <div style="font-size:12px">Tanda Tangan Kepala Sekolah</div>
-                <div style="width:64px;height:64px;background:#ffffff22;border-radius:6px"></div>
-              </div>
-            </div>
-
-            <div style="flex:1">
-              <p class="muted">Kartu pelajar berisi data penting dan QR Code untuk verifikasi. Desain latar, logo, dan tanda tangan dapat diubah melalui pengaturan.</p>
-              <button class="btn" style="margin-top:12px" onclick="alert('Demo: cetak ke PDF akan memanggil backend di implementasi nyata')">Cetak Kartu (PDF)</button>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-      <section id="view-students" class="view" style="display:none">
-        <h2>Data Siswa</h2>
-        <div class="card">
-          <table>
-            <thead>
-              <tr><th>Foto</th><th>Nama</th><th>NISN</th><th>NIS</th><th>Aksi</th></tr>
-            </thead>
-            <tbody id="studentsTable">
-              <!-- rows injected by JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section id="view-import" class="view" style="display:none">
-        <h2>Import Data Siswa (Excel)</h2>
-        <div class="card">
-          <p class="muted">Gunakan template: <strong>NAMA_LENGKAP, NISN, NIS, JENIS_KELAMIN, TANGGAL_LAHIR</strong></p>
-          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-            <input type="file" id="excelFile" accept=".xlsx,.xls" />
-            <button class="btn" onclick="simulateImport()">Unggah</button>
-          </div>
-          <div id="importResult" style="margin-top:12px" class="muted"></div>
-        </div>
-      </section>
-
-      <section id="view-settings" class="view" style="display:none">
-        <h2>Pengaturan Sekolah</h2>
-        <div class="card">
-          <div style="display:flex;gap:18px;align-items:center">
-            <div style="width:96px;height:96px;background:var(--glass);border-radius:10px;display:flex;align-items:center;justify-content:center">Logo</div>
-            <div style="flex:1">
-              <div class="form-group">
-                <label>Nama Sekolah</label>
-                <input value="SMK VAN CENDEKIA" />
-              </div>
-              <div class="form-group">
-                <label>Nama Kepala Sekolah</label>
-                <input value="Drs. Kepala Sekolah" />
-              </div>
-              <div style="display:flex;gap:8px">
-                <button class="btn">Simpan</button>
-                <button onclick="alert('Demo: reset ke default')">Reset</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="view-student-view" class="view" style="display:none">
-        <h2>Dashboard Siswa (Contoh)</h2>
-        <div class="profile card">
-          <div class="photo">Foto</div>
-          <div class="info">
-            <h3 id="studentName">Nama Siswa</h3>
-            <div class="muted">NISN: <span id="studentNisn">0123456789</span></div>
-            <p style="margin-top:12px">Tanggal Lahir: <span id="studentDob">2006-08-17</span></p>
-            <div style="margin-top:12px">
-              <button class="btn" onclick="alert('Ajukan perbaikan: fitur demo')">Ajukan Perbaikan</button>
-              <button style="margin-left:8px" onclick="downloadCard()">Unduh Kartu (PNG)</button>
-            </div>
-          </div>
-
-          <div style="margin-left:20px">
-            <div style="width:320px">
-              <div class="card-preview">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div>
-                    <div style="font-weight:700">SMK VAN CENDEKIA</div>
-                    <div style="font-size:12px;opacity:0.9">Kartu Pelajar</div>
-                  </div>
-                  <div style="width:64px;height:64px;background:#ffffff22;border-radius:8px"></div>
-                </div>
-
-                <div style="display:flex;gap:12px;align-items:center">
-                  <div style="width:84px;height:104px;background:#ffffff22;border-radius:8px"></div>
-                  <div>
-                    <div id="cardName" style="font-size:14px;font-weight:800">Nama Siswa</div>
-                    <div id="cardNisn" style="font-size:13px">NISN: 0123456789</div>
-                    <div id="cardNis" style="font-size:13px">NIS: 2021001</div>
-                  </div>
-                </div>
-
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div style="font-size:12px">TTD Kepala</div>
-                  <div style="width:64px;height:64px;background:#ffffff22;border-radius:6px"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <footer></footer>
-
-    </main>
+      </div>
+    </div>
   </div>
 
-<script>
-  // Simple view switcher for demo
-  document.querySelectorAll('.nav button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const view = btn.dataset.view;
-      showView(view);
+  <script>
+    // Tab switching (Admin/Siswa) — sederhana, hanya visual
+    document.querySelectorAll('.tab').forEach(tab =>{
+      tab.addEventListener('click', ()=>{
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        const role = tab.dataset.role;
+        const placeholder = role === 'admin' ? 'Van64 (Admin)' : 'NISN (Siswa)';
+        document.getElementById('username').placeholder = placeholder;
+      })
     });
-  });
 
-  function showView(view){
-    // map view to section ids
-    const map = {
-      'dashboard':'view-dashboard',
-      'students':'view-students',
-      'import':'view-import',
-      'settings':'view-settings',
-      'student-view':'view-student-view'
-    };
-    document.querySelectorAll('.view').forEach(v=>v.style.display='none');
-    const el = document.getElementById(map[view]);
-    if(el) el.style.display='block';
-  }
+    // Demo login behaviour (tidak melakukan request ke server)
+    document.getElementById('loginBtn').addEventListener('click', ()=>{
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if(!u || !p){
+        alert('Silakan isi username dan password.');
+        return;
+      }
+      if(u.toLowerCase() === 'van64' && p === 'Van1909'){
+        alert('Login sebagai Admin berhasil (demo).');
+      } else if(u === document.getElementById('username').placeholder || (u === p)){
+        alert('Login sebagai Siswa berhasil (demo).');
+      } else {
+        alert('Kredensial tidak dikenali (demo). Gunakan Van64/Van1909 untuk admin, atau NISN untuk siswa.');
+      }
+    });
 
-  // Demo data
-  const students = [
-    {nama:'Mahesa Putra', nisn:'0043210001', nis:'2023001'},
-    {nama:'Siti Aminah', nisn:'0043210002', nis:'2023002'},
-    {nama:'Budi Santoso', nisn:'0043210003', nis:'2023003'},
-    {nama:'Rina Lestari', nisn:'0043210004', nis:'2023004'},
-    {nama:'Aulia Rahman', nisn:'0043210005', nis:'2023005'}
-  ];
+    // tombol download template (demo)
+    document.getElementById('downloadTemplate').addEventListener('click', ()=>{
+      alert('Fungsi unduh template Excel akan tersedia jika backend dihubungkan.');
+    });
 
-  function renderStudents(){
-    const tbody = document.getElementById('studentsTable');
-    tbody.innerHTML = '';
-    students.forEach(s=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><img class="avatar" src="https://via.placeholder.com/80x80.png?text=Foto" alt="foto"></td>
-        <td>${s.nama}</td>
-        <td>${s.nisn}</td>
-        <td>${s.nis}</td>
-        <td><button onclick="viewStudent('${s.nisn}')">Lihat</button></td>
-      `;
-      tbody.appendChild(tr);
-    })
-  }
-  renderStudents();
-
-  function viewStudent(nisn){
-    const s = students.find(x=>x.nisn===nisn);
-    if(!s) return alert('Siswa tidak ditemukan');
-    // populate student view
-    document.getElementById('studentName').textContent = s.nama;
-    document.getElementById('studentNisn').textContent = s.nisn;
-    document.getElementById('studentDob').textContent = '2007-01-15';
-    document.getElementById('cardName').textContent = s.nama;
-    document.getElementById('cardNisn').textContent = 'NISN: '+s.nisn;
-    document.getElementById('cardNis').textContent = 'NIS: '+s.nis;
-    // switch to student view
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    document.querySelector('[data-view="student-view"]').classList.add('active');
-    showView('student-view');
-  }
-
-  function simulateImport(){
-    const f = document.getElementById('excelFile');
-    if(!f.files.length) return alert('Pilih file Excel terlebih dahulu');
-    document.getElementById('importResult').textContent = 'Memproses file... (demo, tidak benar-benar diimport)';
-    setTimeout(()=>{
-      document.getElementById('importResult').textContent = 'Import selesai. 5 baris ditambahkan. 0 error.';
-    },1200);
-  }
-
-  function downloadCard(){
-    alert('Demo: fungsi unduh kartu akan membuat canvas/PDF pada implementasi nyata');
-  }
-
-  function resetToLogin(){
-    if(confirm('Keluar dari demo?')){
-      // in demo, just reload page
-      location.reload();
-    }
-  }
-
-</script>
+    // Export buttons (demo)
+    document.getElementById('exportPng').addEventListener('click', ()=>{
+      alert('Export PNG memerlukan canvas/html2canvas atau rendering server (belum diimplementasikan).');
+    });
+    document.getElementById('exportPdf').addEventListener('click', ()=>{
+      alert('Export PDF memerlukan backend/Puppeteer atau library client-side (belum diimplementasikan).');
+    });
+  </script>
 </body>
 </html>
