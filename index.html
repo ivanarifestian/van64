@@ -14,8 +14,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .card-container {
-            width: 3.37px; /* Lebar kartu standar */
-            height: 2.13px; /* Tinggi kartu standar */
+            width: 3370px; /* Lebar kartu standar */
+            height: 2125px; /* Tinggi kartu standar */
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             background-size: cover;
             background-position: center;
@@ -349,9 +349,9 @@
                 schoolAddress: 'Jl. Pendidikan No. 1, Jakarta',
                 schoolPhone: '021-1234567',
                 logoUrl: 'https://iili.io/FsvxSNj.png',
-                headmasterName: 'Van D. Master, S.Pd.',
+                headmasterName: 'Ferdiansyah, M.Pd.',
                 signatureUrl: 'https://placehold.co/200x60/FFFFFF/FFFFFF?text=.',
-                cardBgUrl: 'https://placehold.co/825x525/003366/FFFFFF?text=Desain+Kartu',
+                cardBgUrl: 'https://placehold.co/3370x2125/003366/FFFFFF?text=Desain+Kartu',
             },
             students: {
                 // Contoh data siswa
@@ -766,7 +766,7 @@
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [3.37, 2.13] // Ukuran kartu
+                    format: [3370, 2125] // Ukuran kartu
                 });
 
                 for (let i = 0; i < selectedIds.length; i++) {
@@ -783,7 +783,7 @@
                     if (i > 0) {
                         pdf.addPage();
                     }
-                    pdf.addImage(imgData, 'PNG', 0, 0, 3.37, 2.13);
+                    pdf.addImage(imgData, 'PNG', 0, 0, 3370, 2125);
                     
                     // Hapus dari body setelah selesai
                     document.body.removeChild(cardElement);
@@ -830,9 +830,9 @@
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [3.37, 2.13]
+                    format: [3370, 2125]
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, 3.37, 2.13);
+                pdf.addImage(imgData, 'PNG', 0, 0, 337, 213);
                 pdf.save(`kartu-pelajar-${state.currentUser.nisn}.pdf`);
             });
 
