@@ -287,7 +287,7 @@
                             </div>
                             <div>
                                 <label for="school-logo" class="block text-sm font-medium text-gray-700">Logo Sekolah</label>
-                                <input type="file" id="school-logo" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+                                <input type="file" id="school-logo" accept="image/jpeg, image/png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
                             </div>
                             <div>
                                 <label for="principal-name" class="block text-sm font-medium text-gray-700">Nama Kepala Sekolah</label>
@@ -295,7 +295,7 @@
                             </div>
                             <div>
                                 <label for="principal-signature" class="block text-sm font-medium text-gray-700">Tanda Tangan Kepala Sekolah</label>
-                                <input type="file" id="principal-signature" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+                                <input type="file" id="principal-signature" accept="image/jpeg, image/png" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
                             </div>
                             <button type="submit" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 font-bold">Simpan Pengaturan</button>
                         </form>
@@ -472,11 +472,11 @@
         ];
 
         const defaultSettings = {
-            schoolName: "SMK Tunas Bangsa",
-            schoolAddress: "Jl. Raya Cirebon No. 123",
+            schoolName: "SMAN 1 GUNUNGKENCANA",
+            schoolAddress: "Jl. Cijaku-Gunungkencana Lebak Banten",
             schoolPhone: "0231-123456",
             schoolLogo: null,
-            principalName: "Drs. Budi Sutomo, M.Pd.",
+            principalName: "Ferdiansyah, M.Pd.",
             principalSignature: null,
             cardBackground: null,
         };
@@ -602,9 +602,9 @@
                 studentHeaderLogo.src = settings.schoolLogo;
                 qrLogo.src = settings.schoolLogo;
             } else {
-                loginLogo.src = "https://placehold.co/150x150/e5e7eb/555?text=LOGO";
-                headerLogo.src = "https://placehold.co/60x60/e5e7eb/555?text=LOGO";
-                studentHeaderLogo.src = "https://placehold.co/60x60/e5e7eb/555?text=LOGO";
+                loginLogo.src = "https://iili.io/FsvxSNj.png";
+                headerLogo.src = "https://iili.io/FsvxSNj.png";
+                studentHeaderLogo.src = "https://iili.io/FsvxSNj.png";
                 qrLogo.src = "https://placehold.co/100x100/e5e7eb/555?text=LOGO";
             }
         }
@@ -952,7 +952,7 @@
             const doc = new window.jspdf.jsPDF({
                 orientation: 'landscape',
                 unit: 'mm',
-                format: [90, 56] // Approximate standard card size
+                format: [520, 320] // Approximate standard card size
             });
             
             for (const nisn of selectedNisns) {
