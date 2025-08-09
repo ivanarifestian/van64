@@ -2,254 +2,361 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VAN KARTU — SELAMAT DATANG</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VAN KARTU — Aplikasi Kartu Pelajar</title>
+  <!-- Libraries CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root{
-      --tosca: #1abc9c; /* tosca biru-tosca */
-      --tosca-dark: #14917b;
-      --card-bg: rgba(255,255,255,0.95);
-      --muted: #5b6b6b;
-      --glass: rgba(255,255,255,0.08);
-      --radius: 12px;
-      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      min-height:100%;
-      background: linear-gradient(135deg, var(--tosca) 0%, #36d1dc 100%);
-      color:#083030;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:32px;
-    }
-
-    .container{
-      width:1100px;
-      max-width:100%;
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap:28px;
-      align-items:start;
-    }
-
-    /* Left - Login Card */
-    .card{
-      background:var(--card-bg);
-      border-radius:var(--radius);
-      padding:28px;
-      box-shadow: 0 8px 24px rgba(10, 30, 30, 0.18);
-    }
-
-    .brand{
-      display:flex;align-items:center;gap:14px;margin-bottom:18px
-    }
-    .logo{
-      width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,var(--tosca-dark),var(--tosca));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px
-    }
-    h1{margin:0;font-size:20px}
-    p.lead{margin:6px 0 18px;color:var(--muted)}
-
-    .tabs{display:flex;gap:8px;margin-bottom:12px}
-    .tab{
-      flex:1;padding:10px;border-radius:10px;text-align:center;cursor:pointer;font-weight:600;background:transparent;border:2px solid transparent
-    }
-    .tab.active{background:var(--glass);border-color:rgba(255,255,255,0.14)}
-
-    .form-group{margin-bottom:12px}
-    label{display:block;font-size:13px;color:#274141;margin-bottom:6px}
-    input[type=text], input[type=password], input[type=file]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(7,48,48,0.08);background:#fbffff}
-    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--tosca-dark);color:white;font-weight:700;border:none;cursor:pointer}
-    .btn.ghost{background:transparent;color:white;border:2px solid rgba(255,255,255,0.22)}
-
+    :root{--accent:#1abc9c;--muted:#666}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial; margin:0; background:#f4f6f8}
+    header{background:linear-gradient(90deg,var(--accent),#16a085);color:#fff;padding:12px 20px}
+    .container{max-width:1100px;margin:18px auto;padding:18px;background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    input,select,button,textarea{padding:8px;border:1px solid #ddd;border-radius:6px;width:100%;box-sizing:border-box}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
     .small{font-size:13px;color:var(--muted)}
-
-    /* Right - Preview */
-    .preview{
-      display:flex;flex-direction:column;gap:18px
-    }
-    .card.preview-card{padding:18px;background:rgba(255,255,255,0.06);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.06)}
-
-    .student-card{
-      width:320px;height:200px;border-radius:12px;overflow:hidden;display:flex;box-shadow:0 12px 40px rgba(3,30,30,0.18);
-      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9));
-    }
-    .student-card .left{width:38%;background:linear-gradient(180deg,var(--tosca),var(--tosca-dark));padding:12px;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .student-card .left img{width:84px;height:84px;border-radius:8px;object-fit:cover;border:3px solid rgba(255,255,255,0.18)}
-    .student-card .right{padding:12px;flex:1}
-    .muted{color:var(--muted)}
-
-    /* Responsive */
-    @media (max-width:900px){
-      .container{grid-template-columns:1fr;}
-      .student-card{width:100%}
-    }
+    .center{text-align:center}
+    nav{display:flex;gap:8px;align-items:center}
+    .logo-preview{height:48px}
+    .card-preview{width:320px;height:200px;border-radius:8px;padding:12px;color:#fff;position:relative;overflow:hidden}
+    .card-photo{width:84px;height:100px;background:#fff;border-radius:6px;object-fit:cover}
+    .field{margin-bottom:10px}
+    .hidden{display:none}
+    .flex{display:flex;gap:10px;align-items:center}
+    .actions{display:flex;gap:6px}
+    footer{font-size:13px;color:var(--muted);padding:12px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="brand">
-        <div class="logo">VN</div>
+  <header>
+    <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;gap:12px;align-items:center">
+        <img id="topLogo" src="" alt="logo" class="logo-preview" />
         <div>
-          <h1>VAN KARTU</h1>
-          <p class="lead">Sistem manajemen kartu pelajar — demo tampilan dengan background biru tosca.</p>
+          <div style="font-weight:700">VAN KARTU</div>
+          <div class="small">Sistem Kartu Pelajar - Demo lokal (single file)</div>
         </div>
       </div>
-
-      <div class="tabs" role="tablist" aria-label="role tabs">
-        <div class="tab active" data-role="admin">Admin</div>
-        <div class="tab" data-role="student">Siswa</div>
-      </div>
-
-      <form id="loginForm" autocomplete="off">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input id="username" name="username" type="text" placeholder="Van64 (Admin) atau NISN (Siswa)" />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" placeholder="Password" />
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:8px">
-          <button type="button" class="btn" id="loginBtn">Masuk</button>
-          <button type="button" class="btn ghost" id="downloadTemplate">Download Template Excel</button>
-        </div>
-
-        <p class="small" style="margin-top:10px">Default admin: <strong>Van64</strong> / <strong>Van1909</strong></p>
-      </form>
-
-      <hr style="margin:18px 0;border:none;border-top:1px solid rgba(3,30,30,0.06)" />
-
-      <div>
-        <h3 style="margin:0 0 8px 0">Pengaturan Cepat</h3>
-        <div class="form-group">
-          <label>Upload Logo Sekolah</label>
-          <input type="file" accept="image/*" id="logoUpload" />
-        </div>
-        <div class="form-group">
-          <label>Upload Tanda Tangan Kepala Sekolah</label>
-          <input type="file" accept="image/*" id="ttdUpload" />
-        </div>
-      </div>
+      <div id="navArea"></div>
     </div>
+  </header>
 
-    <div class="preview">
-      <div class="card preview-card">
-        <h3 style="margin:0 0 8px 0;color:white">Preview Kartu Pelajar</h3>
-        <p class="small" style="margin:0 0 12px 0;color:rgba(255,255,255,0.85)">Contoh gaya kartu — warna latar mengikuti palet tosca.</p>
-
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div class="student-card">
-            <div class="left">
-              <img src="https://picsum.photos/seed/pelajar1/200/200" alt="foto siswa" />
+  <main class="container">
+    <!-- LOGIN -->
+    <section id="loginSection">
+      <h2>Login</h2>
+      <div class="row">
+        <div class="col">
+          <div class="field"><label>Username</label><input id="loginUser" /></div>
+          <div class="field"><label>Password</label><input id="loginPass" type="password" /></div>
+          <div class="field"><button id="btnLogin" class="btn">Masuk</button>
+            <button id="seedBtn" class="btn ghost" style="margin-left:8px">Seed contoh data</button>
+          </div>
+          <div class="small">Masuk sebagai Admin: <b>Van64</b> / <b>Van1909</b> — Siswa: gunakan NISN sebagai username & password</div>
+        </div>
+        <div class="col">
+          <h4>Tampilan Kartu Contoh</h4>
+          <div id="liveCard" class="card-preview" style="background:#1abc9c">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><img id="cardLogo" src="" alt="logo" style="height:40px"/></div>
+              <div id="cardSchoolName">Nama Sekolah</div>
             </div>
-            <div class="right">
+            <div style="display:flex;gap:12px;margin-top:12px">
+              <img id="cardPhoto" class="card-photo" src="" alt="foto"/>
+              <div>
+                <div id="cardName">Nama Lengkap</div>
+                <div class="small">NISN: <span id="cardNisn">-</span></div>
+                <div class="small">NIS: <span id="cardNis">-</span></div>
+                <div style="position:absolute;right:12px;bottom:12px;text-align:center">
+                  <div id="qrcodeMini"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="adminSection" class="hidden">
+      <h2>Dasbor Admin</h2>
+      <nav>
+        <button class="btn" onclick="showTab('studentsTab')">Manajemen Siswa</button>
+        <button class="btn ghost" onclick="showTab('uploadTab')">Upload Excel Foto</button>
+        <button class="btn ghost" onclick="showTab('settingsTab')">Pengaturan</button>
+        <button class="btn" onclick="logout()">Keluar</button>
+      </nav>
+
+      <div id="studentsTab" class="tab">
+        <h3>Data Siswa</h3>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="searchInput" placeholder="Cari nama / NISN / NIS" oninput="renderStudents()" />
+          <button class="btn" onclick="showAddForm()">Tambah Siswa</button>
+          <button class="btn ghost" onclick="exportStudentsExcel()">Unduh Template / Data</button>
+          <button class="btn" onclick="printSelected()">Cetak Kartu Terpilih</button>
+        </div>
+        <div id="studentsTableWrap"></div>
+
+        <div id="studentForm" class="hidden">
+          <h4>Form Siswa</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input id="f_nama" placeholder="Nama Lengkap" />
+            <input id="f_nisn" placeholder="NISN" />
+            <input id="f_nis" placeholder="NIS" />
+            <select id="f_jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+            <input id="f_tgl" type="date" />
+            <div>
+              <label>Foto (opsional)</label>
+              <input type="file" id="f_foto" accept="image/*" />
+            </div>
+          </div>
+          <div style="margin-top:8px"><button class="btn" onclick="saveStudent()">Simpan</button> <button class="btn ghost" onclick="hideAddForm()">Batal</button></div>
+        </div>
+      </div>
+
+      <div id="uploadTab" class="tab hidden">
+        <h3>Upload Data & Foto</h3>
+        <div class="field"><label>Unduh Template Excel (format kolom: NAMA_LENGKAP,NISN,NIS,JENIS_KELAMIN,TANGGAL_LAHIR)</label><br><button class="btn" onclick="downloadTemplate()">Unduh Template</button></div>
+        <div class="field"><label>Upload Excel</label><input type="file" id="excelFile" accept=".xls,.xlsx" /></div>
+        <div class="field"><label>Upload Foto Siswa (bulk: file name harus NISN.jpg/png)</label><input type="file" id="bulkFoto" accept="image/*" multiple /></div>
+        <div class="field"><button class="btn" onclick="handleExcelUpload()">Proses Upload Excel</button></div>
+      </div>
+
+      <div id="settingsTab" class="tab hidden">
+        <h3>Pengaturan Sekolah & Kartu</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div class="field"><label>Nama Sekolah</label><input id="s_schoolName" /></div>
+            <div class="field"><label>Alamat</label><input id="s_address" /></div>
+            <div class="field"><label>Telepon</label><input id="s_phone" /></div>
+            <div class="field"><label>Logo Sekolah</label><input type="file" id="s_logo" accept="image/*" /></div>
+            <div class="field"><label>Tanda Tangan Kepala Sekolah</label><input type="file" id="s_ttd" accept="image/*" /></div>
+            <div class="field"><label>Nama Kepala Sekolah</label><input id="s_headname" /></div>
+            <div class="field"><label>Desain Latar Kartu (opsional)</label><input type="file" id="s_bg" accept="image/*" /></div>
+            <div class="field"><label>Warna Background Kartu (default hijau tosca)</label><input id="s_bgcolor" type="color" value="#1abc9c" /></div>
+            <div><button class="btn" onclick="saveSettings()">Simpan Pengaturan</button></div>
+          </div>
+          <div>
+            <h4>Preview Kartu</h4>
+            <div id="settingsPreview" class="card-preview" style="background:var(--accent)">
               <div style="display:flex;justify-content:space-between;align-items:center">
+                <div><img id="prevLogo" src="" alt="logo" style="height:40px"/></div>
+                <div id="prevSchool">Sekolah</div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:12px">
+                <div style="width:84px;height:100px;background:#fff;border-radius:6px"></div>
                 <div>
-                  <div style="font-size:14px;font-weight:800">SMAN 1 GUNUNGKENCANA</div>
-                  <div class="muted" style="font-size:12px">Jl. Contoh No.1</div>
+                  <div id="prevName">Nama Lengkap</div>
+                  <div class="small">NISN: 000</div>
                 </div>
-                <div style="font-size:12px;color:var(--muted)">NISN: 1234567890</div>
-              </div>
-
-              <div style="margin-top:14px">
-                <div style="font-weight:800;font-size:16px">Ivan Arifestian</div>
-                <div class="muted" style="margin-top:6px">Jenis Kelamin: L | TTL: 2006-03-05</div>
-              </div>
-
-              <div style="display:flex;justify-content:space-between;align-items:end;margin-top:18px">
-                <div style="font-size:12px;color:var(--muted)">Kepala Sekolah</div>
-                <div style="text-align:right">
-                  <img src="https://picsum.photos/seed/ttd/120/40" alt="ttd" style="height:34px;object-fit:contain;opacity:0.9"/>
-                  <div style="font-size:12px;color:var(--muted)">Drs. Kepala</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- contoh kartu kecil tambahan -->
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="width:160px;height:96px;background:rgba(255,255,255,0.9);border-radius:8px;padding:8px;display:flex;align-items:center;gap:8px">
-              <img src="https://picsum.photos/seed/p2/80/80" style="width:56px;height:56px;border-radius:6px;object-fit:cover"/>
-              <div>
-                <div style="font-weight:700;font-size:13px">Siti Nur</div>
-                <div class="muted" style="font-size:12px">NISN: 9876543210</div>
-              </div>
-            </div>
-
-            <div style="width:160px;height:96px;background:linear-gradient(180deg,var(--tosca),var(--tosca-dark));border-radius:8px;padding:8px;color:white;display:flex;align-items:center;gap:8px">
-              <img src="https://picsum.photos/seed/p3/100/100" style="width:56px;height:56px;border-radius:6px;object-fit:cover;border:2px solid rgba(255,255,255,0.14)"/>
-              <div>
-                <div style="font-weight:700;font-size:13px">Budi Santoso</div>
-                <div style="font-size:12px;opacity:0.9">NISN: 1122334455</div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Informasi Singkat</h3>
-        <p class="small">Halaman ini adalah template statis HTML/CSS. Jika kamu mau, aku bisa tambahkan interaktivitas (validasi login sederhana), atau mengubah tampilan menjadi halaman React/Blade/Laravel sesuai stack pilihanmu.</p>
+    <!-- SISWA DASHBOARD -->
+    <section id="siswaSection" class="hidden">
+      <h2>Dasbor Siswa</h2>
+      <div>
+        <div id="siswaInfoWrap"></div>
+        <div style="margin-top:8px"><button class="btn" onclick="logout()">Keluar</button></div>
+      </div>
+    </section>
 
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn" id="exportPng">Download Kartu PNG</button>
-          <button class="btn ghost" id="exportPdf">Export PDF</button>
+    <!-- KARTU TEMPAT CETAK -->
+    <div id="cardPrintArea" class="hidden" style="position:fixed;right:20px;bottom:20px;background:#fff;padding:12px;border-radius:8px;box-shadow:0 8px 22px rgba(0,0,0,0.12)">
+      <div id="singleCardHolder"></div>
+      <div style="margin-top:8px"><button class="btn" onclick="downloadCardPNG()">Download PNG</button> <button class="btn ghost" onclick="downloadCardPDF()">Download PDF</button></div>
+    </div>
+
+  </main>
+  <footer class="center">VAN KARTU — Demo. Simpan file HTML lalu buka di browser modern (Chrome/Edge/Firefox).</footer>
+
+<script>
+// ----------------- Storage helpers -----------------
+const LS_KEYS = {students:'van_students',settings:'van_settings',requests:'van_requests'};
+function loadStudents(){return JSON.parse(localStorage.getItem(LS_KEYS.students)||'[]')}
+function saveStudents(list){localStorage.setItem(LS_KEYS.students,JSON.stringify(list))}
+function loadSettings(){const d=JSON.parse(localStorage.getItem(LS_KEYS.settings)||'{}');return d}
+function saveSettingsObj(s){localStorage.setItem(LS_KEYS.settings,JSON.stringify(s))}
+
+// ----------------- Init -----------------
+let currentUser = null; // {role:'admin'|'siswa', nisn:...}
+function init(){
+  // set default settings if not exists
+  const def = loadSettings();
+  if(!def.schoolName){
+    saveSettingsObj({schoolName:'SMA Contoh',address:'Jl. Pendidikan No.1',phone:'08123456789',bgColor:'#1abc9c',logo:'',ttd:'',headname:'Kepala Sekolah'})
+  }
+  renderTopLogo();
+  renderNav();
+  document.getElementById('btnLogin').addEventListener('click',loginHandler);
+  document.getElementById('seedBtn').addEventListener('click',seedDemo);
+  document.getElementById('excelFile').addEventListener('change',e=>{window._excelFile=e.target.files[0]});
+  document.getElementById('bulkFoto').addEventListener('change',handleBulkFotos);
+  document.getElementById('s_logo').addEventListener('change',e=>fileToBase64(e.target.files[0]).then(b=>{document.getElementById('prevLogo').src=b;document.getElementById('topLogo').src=b}));
+  document.getElementById('s_bg').addEventListener('change',e=>fileToBase64(e.target.files[0]).then(b=>{document.getElementById('settingsPreview').style.backgroundImage=`url(${b})`;document.getElementById('settingsPreview').style.backgroundSize='cover'}));
+  renderLiveCard();
+}
+
+// ----------------- Utility -----------------
+function fileToBase64(file){return new Promise((res,rej)=>{if(!file){res('');return;}const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej();r.readAsDataURL(file)})}
+
+// ----------------- Login -----------------
+function loginHandler(){const u=document.getElementById('loginUser').value.trim();const p=document.getElementById('loginPass').value.trim();
+  if(u===''||p===''){alert('Masukkan username & password');return}
+  // admin static
+  if(u==='Van64'&&p==='Van1909'){currentUser={role:'admin',user:'Van64'};enterAdmin();return}
+  // siswa: NISN as username & password
+  const students=loadStudents();const s = students.find(x=>x.NISN===u);
+  if(s && p===u){currentUser={role:'siswa',nisn:u};enterSiswa();return}
+  alert('Login gagal — periksa username/password')
+}
+function logout(){currentUser=null;document.getElementById('adminSection').classList.add('hidden');document.getElementById('siswaSection').classList.add('hidden');document.getElementById('loginSection').classList.remove('hidden');renderNav();}
+
+// ----------------- Enter Views -----------------
+function enterAdmin(){document.getElementById('loginSection').classList.add('hidden');document.getElementById('adminSection').classList.remove('hidden');showTab('studentsTab');renderStudents();renderSettingsForm();renderTopLogo();}
+function enterSiswa(){document.getElementById('loginSection').classList.add('hidden');document.getElementById('siswaSection').classList.remove('hidden');renderSiswaProfile();}
+
+function renderNav(){const el=document.getElementById('navArea');el.innerHTML='';if(!currentUser){el.innerHTML='<span class="small">Belum masuk</span>';return;} if(currentUser.role==='admin'){el.innerHTML='<span class="small">Admin</span>'} else {el.innerHTML=`<span class="small">Siswa: ${currentUser.nisn}</span>`}}
+
+// ----------------- Students CRUD -----------------
+function seedDemo(){const demo = [
+  {NAMA_LENGKAP:'Budi Santoso',NISN:'1001',NIS:'S1001',JENIS_KELAMIN:'L',TANGGAL_LAHIR:'2007-05-12',foto:''},
+  {NAMA_LENGKAP:'Siti Aminah',NISN:'1002',NIS:'S1002',JENIS_KELAMIN:'P',TANGGAL_LAHIR:'2006-11-03',foto:''}
+];saveStudents(demo);alert('Contoh data siswa disimpan. Login siswa: NISN 1001 / 1002 (password sama dengan NISN).');renderStudents();}
+
+function renderStudents(){const wrap=document.getElementById('studentsTableWrap');const q=document.getElementById('searchInput').value.toLowerCase();const list=loadStudents().filter(s=>!q||s.NAMA_LENGKAP.toLowerCase().includes(q)||s.NISN.includes(q)||s.NIS.includes(q));
+  if(list.length===0){wrap.innerHTML='<div class="small">Belum ada data siswa</div>';return}
+  let html='<table><thead><tr><th><input type="checkbox" id="chkAll" onchange="toggleAll(this)" /></th><th>Nama</th><th>NISN</th><th>NIS</th><th>JK</th><th>Tgl Lahir</th><th>Aksi</th></tr></thead><tbody>';
+  for(const s of list){html+=`<tr><td><input type="checkbox" class="selBox" data-nisn="${s.NISN}" /></td><td>${s.NAMA_LENGKAP}</td><td>${s.NISN}</td><td>${s.NIS}</td><td>${s.JENIS_KELAMIN}</td><td>${s.TANGGAL_LAHIR}</td><td class="actions"><button class="btn" onclick="editStudent('${s.NISN}')">Edit</button><button class="btn ghost" onclick="deleteStudent('${s.NISN}')">Hapus</button><button class="btn" onclick="showCardPreview('${s.NISN}')">Cetak</button></td></tr>`}
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+}
+function toggleAll(chk){document.querySelectorAll('.selBox').forEach(el=>el.checked=chk.checked)}
+let editingNisn=null;
+function showAddForm(){editingNisn=null;document.getElementById('studentForm').classList.remove('hidden');document.getElementById('f_nama').value='';document.getElementById('f_nisn').value='';document.getElementById('f_nis').value='';document.getElementById('f_jk').value='L';document.getElementById('f_tgl').value=''}
+function hideAddForm(){document.getElementById('studentForm').classList.add('hidden')}
+async function saveStudent(){const nama=document.getElementById('f_nama').value.trim();const nisn=document.getElementById('f_nisn').value.trim();const nis=document.getElementById('f_nis').value.trim();const jk=document.getElementById('f_jk').value;const tgl=document.getElementById('f_tgl').value; if(!nama||!nisn){alert('Nama & NISN wajib');return}
+  const students=loadStudents();if(editingNisn){const i=students.findIndex(x=>x.NISN===editingNisn);students[i]={...students[i],NAMA_LENGKAP:nama,NISN:nisn,NIS:nis,JENIS_KELAMIN:jk,TANGGAL_LAHIR:tgl};} else {if(students.find(x=>x.NISN===nisn)){alert('NISN sudah ada');return}students.push({NAMA_LENGKAP:nama,NISN:nisn,NIS:nis,JENIS_KELAMIN:jk,TANGGAL_LAHIR:tgl,foto:''})}
+  // foto
+  const f=document.getElementById('f_foto').files[0]; if(f){const b=await fileToBase64(f);const idx=students.findIndex(x=>x.NISN===nisn);students[idx].foto=b}
+  saveStudents(students);hideAddForm();renderStudents();alert('Simpan berhasil');}
+function editStudent(nisn){const s=loadStudents().find(x=>x.NISN===nisn);if(!s)return;editingNisn=nisn;document.getElementById('studentForm').classList.remove('hidden');document.getElementById('f_nama').value=s.NAMA_LENGKAP;document.getElementById('f_nisn').value=s.NISN;document.getElementById('f_nis').value=s.NIS;document.getElementById('f_jk').value=s.JENIS_KELAMIN;document.getElementById('f_tgl').value=s.TANGGAL_LAHIR}
+function deleteStudent(nisn){if(!confirm('Hapus siswa ini?'))return;const a=loadStudents().filter(x=>x.NISN!==nisn);saveStudents(a);renderStudents()}
+
+// ----------------- Excel import/export -----------------
+function downloadTemplate(){const wb=XLSX.utils.book_new(); const wsData=[['NAMA_LENGKAP','NISN','NIS','JENIS_KELAMIN','TANGGAL_LAHIR'],['Contoh Siswa','1003','S1003','L','2007-01-01']]; const ws=XLSX.utils.aoa_to_sheet(wsData); XLSX.utils.book_append_sheet(wb,ws,'Template'); XLSX.writeFile(wb,'van_template_siswa.xlsx') }
+
+async function handleExcelUpload(){const f=window._excelFile; if(!f){alert('Pilih file Excel terlebih dahulu');return} const data=await f.arrayBuffer(); const wb=XLSX.read(data,{type:'array'}); const ws=wb.Sheets[wb.SheetNames[0]]; const json=XLSX.utils.sheet_to_json(ws,{defval:''}); // expect keys in first row
+  const map=json.map(row=>({NAMA_LENGKAP:row.NAMA_LENGKAP||row.Nama_Lengkap||row.NAME||row.NAMA||'',NISN:String(row.NISN||''),NIS:String(row.NIS||''),JENIS_KELAMIN:row.JENIS_KELAMIN||row.JK||'L',TANGGAL_LAHIR:row.TANGGAL_LAHIR||''}))
+  const students=loadStudents(); for(const r of map){ if(!r.NISN) continue; if(!students.find(x=>x.NISN===r.NISN)) students.push({...r,foto:''}); }
+  saveStudents(students); alert('Import selesai. Total siswa: '+students.length); renderStudents(); }
+
+// ----------------- Bulk foto upload -----------------
+async function handleBulkFotos(e){const files = e.target.files; if(!files||files.length===0){return} const students=loadStudents(); let count=0; for(const f of files){const name=f.name.split('.')[0]; const sidx=students.findIndex(x=>x.NISN===name); if(sidx>=0){students[sidx].foto=await fileToBase64(f); count++} }
+  saveStudents(students); alert('Foto dipetakan ke '+count+' siswa (berdasarkan nama file = NISN)'); renderStudents(); }
+
+// ----------------- Settings -----------------
+async function saveSettings(){const sname=document.getElementById('s_schoolName').value||'Sekolah';const addr=document.getElementById('s_address').value||'';const phone=document.getElementById('s_phone').value||'';const head=document.getElementById('s_headname').value||'';const bgcolor=document.getElementById('s_bgcolor').value||'#1abc9c';
+  const logoFile=document.getElementById('s_logo').files[0];const ttdFile=document.getElementById('s_ttd').files[0];const bgFile=document.getElementById('s_bg').files[0];
+  const obj=loadSettings(); obj.schoolName=sname;obj.address=addr;obj.phone=phone;obj.headname=head;obj.bgColor=bgcolor;
+  if(logoFile) obj.logo = await fileToBase64(logoFile);
+  if(ttdFile) obj.ttd = await fileToBase64(ttdFile);
+  if(bgFile) obj.bg = await fileToBase64(bgFile);
+  saveSettingsObj(obj); renderTopLogo(); alert('Pengaturan disimpan'); renderLiveCard(); }
+
+function renderSettingsForm(){const s=loadSettings();document.getElementById('s_schoolName').value=s.schoolName||'';document.getElementById('s_address').value=s.address||'';document.getElementById('s_phone').value=s.phone||'';document.getElementById('s_headname').value=s.headname||'';document.getElementById('s_bgcolor').value=s.bgColor||'#1abc9c';document.getElementById('prevLogo').src=s.logo||'';document.getElementById('prevSchool').innerText=s.schoolName||'Sekolah'}
+function renderTopLogo(){const s=loadSettings();document.getElementById('topLogo').src=s.logo||'';document.getElementById('cardLogo').src=s.logo||'';document.getElementById('cardSchoolName').innerText=s.schoolName||'Nama Sekolah'}
+
+// ----------------- Card preview & print -----------------
+function showCardPreview(nisn){const s = loadStudents().find(x=>x.NISN===nisn);if(!s){alert('Siswa tidak ditemukan');return}
+  const holder=document.getElementById('singleCardHolder'); holder.innerHTML = buildCardHTML(s);
+  document.getElementById('cardPrintArea').classList.remove('hidden'); // generate QR
+  const qrEl = holder.querySelector('.qrcode'); qrEl.innerHTML=''; new QRCode(qrEl, {text:buildVerifyUrl(s.NISN),width:80,height:80});}
+
+function buildCardHTML(s){const sett=loadSettings();const bg = sett.bg||''; const bgColor = sett.bgColor||'#1abc9c'; const logo=sett.logo||''; const ttd=sett.ttd||''; const headname=sett.headname||'';
+  const photo = s.foto||'';
+  return `
+    <div id="cardSingle" style="width:360px;padding:16px;border-radius:10px;background:${bg?`url(${bg}) center/cover`:bgColor};color:#fff;font-family:Inter">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <img src="${logo}" style="height:44px" />
+        <div style="font-weight:700">${sett.schoolName||'Sekolah'}</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <img src="${photo||''}" style="width:84px;height:100px;object-fit:cover;border-radius:6px;background:#fff"/>
+        <div style="flex:1">
+          <div style="font-weight:700">${s.NAMA_LENGKAP}</div>
+          <div class="small">NISN: ${s.NISN}</div>
+          <div class="small">NIS: ${s.NIS}</div>
+          <div class="small">JK: ${s.JENIS_KELAMIN}</div>
+          <div class="small">TTL: ${s.TANGGAL_LAHIR}</div>
         </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <div style="text-align:center">
+          <img src="${ttd||''}" style="height:40px" />
+          <div class="small">${headname||''}</div>
+        </div>
+        <div class="qrcode"></div>
       </div>
     </div>
-  </div>
+  `}
 
-  <script>
-    // Tab switching (Admin/Siswa) — sederhana, hanya visual
-    document.querySelectorAll('.tab').forEach(tab =>{
-      tab.addEventListener('click', ()=>{
-        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-        tab.classList.add('active');
-        const role = tab.dataset.role;
-        const placeholder = role === 'admin' ? 'Van64 (Admin)' : 'NISN (Siswa)';
-        document.getElementById('username').placeholder = placeholder;
-      })
-    });
+function buildVerifyUrl(nisn){ // in real app this would be a hosted URL
+  return `VERIFIKASI: NISN=${nisn} (Aktif)` }
 
-    // Demo login behaviour (tidak melakukan request ke server)
-    document.getElementById('loginBtn').addEventListener('click', ()=>{
-      const u = document.getElementById('username').value.trim();
-      const p = document.getElementById('password').value.trim();
-      if(!u || !p){
-        alert('Silakan isi username dan password.');
-        return;
-      }
-      if(u.toLowerCase() === 'van64' && p === 'Van1909'){
-        alert('Login sebagai Admin berhasil (demo).');
-      } else if(u === document.getElementById('username').placeholder || (u === p)){
-        alert('Login sebagai Siswa berhasil (demo).');
-      } else {
-        alert('Kredensial tidak dikenali (demo). Gunakan Van64/Van1909 untuk admin, atau NISN untuk siswa.');
-      }
-    });
+async function downloadCardPNG(){const el=document.querySelector('#singleCardHolder #cardSingle'); if(!el){alert('Tidak ada kartu untuk di-download');return}
+  const canvas = await html2canvas(el); const data = canvas.toDataURL('image/png'); const a=document.createElement('a'); a.href=data; a.download='van_kartu_'+Date.now()+'.png'; a.click(); }
 
-    // tombol download template (demo)
-    document.getElementById('downloadTemplate').addEventListener('click', ()=>{
-      alert('Fungsi unduh template Excel akan tersedia jika backend dihubungkan.');
-    });
+async function downloadCardPDF(){const {jsPDF} = window.jspdf; const el=document.querySelector('#singleCardHolder #cardSingle'); if(!el){alert('Tidak ada kartu');return}
+  const canvas=await html2canvas(el, {scale:2}); const img=canvas.toDataURL('image/png'); const pdf=new jsPDF({orientation:'landscape',unit:'px',format:[canvas.width,canvas.height]}); pdf.addImage(img,'PNG',0,0,canvas.width,canvas.height); pdf.save('van_kartu_'+Date.now()+'.pdf'); }
 
-    // Export buttons (demo)
-    document.getElementById('exportPng').addEventListener('click', ()=>{
-      alert('Export PNG memerlukan canvas/html2canvas atau rendering server (belum diimplementasikan).');
-    });
-    document.getElementById('exportPdf').addEventListener('click', ()=>{
-      alert('Export PDF memerlukan backend/Puppeteer atau library client-side (belum diimplementasikan).');
-    });
-  </script>
+function printSelected(){const sels=Array.from(document.querySelectorAll('.selBox:checked')).map(x=>x.dataset.nisn); if(sels.length===0){alert('Pilih minimal 1 siswa');return}
+  // for simplicity, preview first selected
+  showCardPreview(sels[0]);}
+
+// ----------------- Siswa dashboard -----------------
+function renderSiswaProfile(){const s = loadStudents().find(x=>x.NISN===currentUser.nisn);const wrap=document.getElementById('siswaInfoWrap'); if(!s){wrap.innerHTML='<div class="small">Data tidak ditemukan</div>';return}
+  wrap.innerHTML = `
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <img src="${s.foto||''}" style="width:120px;height:140px;border-radius:6px;object-fit:cover;background:#fff" />
+      <div style="flex:1">
+        <h3>${s.NAMA_LENGKAP}</h3>
+        <div class="small">NISN: ${s.NISN}</div>
+        <div class="small">NIS: ${s.NIS}</div>
+        <div class="small">JK: ${s.JENIS_KELAMIN}</div>
+        <div class="small">TTL: ${s.TANGGAL_LAHIR}</div>
+        <div style="margin-top:8px"><label>Ganti Foto</label><input type="file" id="stuPhoto" accept="image/*" /></div>
+        <div style="margin-top:8px"><button class="btn" onclick="saveStudentPhoto('${s.NISN}')">Upload Foto</button> <button class="btn ghost" onclick="requestEdit('${s.NISN}')">Ajukan Perbaikan Data</button> <button class="btn" onclick="showCardPreview('${s.NISN}')">Lihat / Unduh Kartu</button></div>
+      </div>
+    </div>
+  `}
+
+async function saveStudentPhoto(nisn){const f=document.getElementById('stuPhoto').files[0]; if(!f){alert('Pilih file');return} const b=await fileToBase64(f); const arr=loadStudents(); const idx=arr.findIndex(x=>x.NISN===nisn); if(idx<0){alert('siswa tidak ditemukan');return} arr[idx].foto=b; saveStudents(arr); alert('Foto tersimpan'); renderSiswaProfile(); }
+
+function requestEdit(nisn){const message = prompt('Jelaskan perbaikan (contoh: Perbaiki ejaan nama):'); if(!message) return; const reqs=JSON.parse(localStorage.getItem(LS_KEYS.requests)||'[]'); reqs.push({nisn, message, tanggal:new Date().toISOString(), status:'pending'}); localStorage.setItem(LS_KEYS.requests,JSON.stringify(reqs)); alert('Permintaan perbaikan terkirim - menunggu persetujuan admin'); }
+
+// ----------------- Export students (simple) -----------------
+function exportStudentsExcel(){const students=loadStudents(); const ws = XLSX.utils.json_to_sheet(students); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Siswa'); XLSX.writeFile(wb,'van_data_siswa.xlsx') }
+
+// ----------------- Helpers -----------------
+function showTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+
+// ----------------- Misc -----------------
+function showCardPreviewInNewWindow(nisn){const s=loadStudents().find(x=>x.NISN===nisn);const html = '<html><head><meta charset="utf-8"><title>Kartu</title></head><body>'+buildCardHTML(s)+'</body></html>'; const w=window.open('','_blank'); w.document.write(html);}
+
+// init run
+init();
+</script>
 </body>
 </html>
