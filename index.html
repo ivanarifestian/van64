@@ -345,10 +345,10 @@
         let state = {
             currentUser: null, // 'admin' atau {nisn: '...'}
             settings: {
-                schoolName: 'SMA VAN KARTU',
+                schoolName: 'VAN KARTU',
                 schoolAddress: 'Jl. Pendidikan No. 1, Jakarta',
                 schoolPhone: '021-1234567',
-                logoUrl: 'https://placehold.co/100x100/3B82F6/FFFFFF?text=Logo',
+                logoUrl: 'https://iili.io/FsvxSNj.png',
                 headmasterName: 'Van D. Master, S.Pd.',
                 signatureUrl: 'https://placehold.co/200x60/FFFFFF/FFFFFF?text=.',
                 cardBgUrl: 'https://placehold.co/825x525/003366/FFFFFF?text=Desain+Kartu',
@@ -766,7 +766,7 @@
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [325, 204] // Ukuran kartu
+                    format: [3.37, 2.13] // Ukuran kartu
                 });
 
                 for (let i = 0; i < selectedIds.length; i++) {
@@ -783,7 +783,7 @@
                     if (i > 0) {
                         pdf.addPage();
                     }
-                    pdf.addImage(imgData, 'PNG', 0, 0, 325, 204);
+                    pdf.addImage(imgData, 'PNG', 0, 0, 3.37, 2.13);
                     
                     // Hapus dari body setelah selesai
                     document.body.removeChild(cardElement);
@@ -830,9 +830,9 @@
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'px',
-                    format: [325, 204]
+                    format: [3.37, 2.13]
                 });
-                pdf.addImage(imgData, 'PNG', 0, 0, 325, 204);
+                pdf.addImage(imgData, 'PNG', 0, 0, 3.37, 2.13);
                 pdf.save(`kartu-pelajar-${state.currentUser.nisn}.pdf`);
             });
 
