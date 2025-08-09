@@ -2,649 +2,384 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>VAN KARTU</title>
-  <!-- Tailwind CDN for quick styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Libraries: SheetJS (Excel), QRCode, html2pdf -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VAN KARTU - SELAMAT DATANG</title>
   <style>
-    /* simple small custom styles */
-    .card-preview { width: 350px; height: 220px; border-radius: 8px; overflow: hidden; }
-    .card-bg { background-size: cover; background-position: center; }
-    .hidden-page { display: none; }
-    .avatar { width: 90px; height: 110px; object-fit: cover; border-radius: 4px; border:2px solid #fff; }
-    .table-scroll { max-height: 360px; overflow:auto; }
+    :root{
+      --tosca: #20c997; /* warna biru tosca / teal */
+      --tosca-dark: #179a80;
+      --bg: linear-gradient(135deg, rgba(32,201,151,0.12), rgba(32,201,151,0.05));
+      --card: #ffffff;
+      --muted: #6b7280;
+      --glass: rgba(255,255,255,0.08);
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background: var(--bg), radial-gradient(800px 600px at 10% 10%, rgba(32,201,151,0.06), transparent), radial-gradient(600px 400px at 90% 90%, rgba(32,201,151,0.04), transparent);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .app {
+      width:1100px;
+      max-width:100%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.82));
+      border-radius:16px;
+      box-shadow:0 10px 30px rgba(15,23,42,0.12);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 380px 1fr;
+      min-height:640px;
+    }
+
+    /* SIDEBAR */
+    .sidebar{
+      padding:28px;
+      background: linear-gradient(180deg, rgba(32,201,151,0.08), rgba(32,201,151,0.02));
+      border-right:1px solid rgba(15,23,42,0.03);
+    }
+    .logo{
+      display:flex;align-items:center;gap:12px;margin-bottom:18px;
+    }
+    .logo .mark{width:56px;height:56px;border-radius:10px;background:var(--tosca);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;box-shadow:0 6px 18px rgba(32,201,151,0.18)}
+    .logo h1{font-size:16px;margin:0}
+    .logo p{margin:0;font-size:12px;color:var(--muted)}
+
+    .nav{margin-top:18px}
+    .nav button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;border:0;background:transparent;color:var(--tosca-dark);font-weight:600;cursor:pointer}
+    .nav button.active{background:rgba(32,201,151,0.12)}
+
+    .small{font-size:13px;color:var(--muted);margin-top:16px}
+
+    /* MAIN */
+    .main{padding:28px}
+    .topbar{display:flex;justify-content:space-between;align-items:center}
+    .search{display:flex;gap:8px;align-items:center}
+    .search input{padding:10px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);min-width:220px}
+    .btn{background:var(--tosca);border:none;padding:10px 14px;border-radius:10px;color:white;font-weight:700;cursor:pointer}
+
+    /* Login Card */
+    .login-card{max-width:380px;margin:40px auto;padding:24px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));box-shadow:0 8px 30px rgba(15,23,42,0.06)}
+    .login-card h2{margin:0 0 8px}
+    .form-group{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+    .form-group input{padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06)}
+    .muted{font-size:13px;color:var(--muted)}
+
+    /* Dashboard widgets */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+    .card h3{margin:0;font-size:14px}
+    .stat{font-size:22px;font-weight:800;margin-top:8px}
+
+    /* table */
+    table{width:100%;border-collapse:collapse;margin-top:18px}
+    thead th{background:transparent;text-align:left;padding:10px 8px;color:var(--muted);font-size:13px}
+    tbody td{padding:10px 8px;border-top:1px solid rgba(15,23,42,0.04)}
+    .avatar{width:48px;height:48px;border-radius:8px;object-fit:cover}
+
+    /* student profile */
+    .profile{display:flex;gap:20px;align-items:flex-start}
+    .profile .photo{width:160px;height:200px;border-radius:8px;background:var(--glass);display:flex;align-items:center;justify-content:center}
+    .profile .info{flex:1}
+
+    .card-preview{width:360px;height:220px;border-radius:12px;padding:14px;background:linear-gradient(180deg,var(--tosca),var(--tosca-dark));color:white;display:flex;flex-direction:column;justify-content:space-between}
+
+    footer{font-size:13px;color:var(--muted);margin-top:20px}
+
+    /* responsive */
+    @media (max-width:980px){
+      .app{grid-template-columns:1fr;min-height:100vh}
+      .sidebar{display:flex;justify-content:space-between;align-items:center}
+    }
+
   </style>
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
-  <div class="min-h-screen flex items-start justify-center p-6">
-    <div class="w-full max-w-6xl">
-      <header class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <img id="schoolLogoSmall" src="" alt="Logo" class="w-14 h-14 object-contain"/>
-          <div>
-            <h1 class="text-2xl font-bold">VAN KARTU</h1>
-            <p id="schoolNameSmall" class="text-sm text-gray-600">SMAN 1 GUNUNGKENCANA</p>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="mark">VK</div>
+        <div>
+          <h1>VAN KARTU</h1>
+          <p>Manajemen Kartu Pelajar</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="active" data-view="dashboard">Dashboard</button>
+        <button data-view="students">Data Siswa</button>
+        <button data-view="import">Import Excel</button>
+        <button data-view="settings">Pengaturan</button>
+        <button data-view="student-view">Masuk sebagai Siswa</button>
+      </nav>
+
+      <div class="small">Versi demo • Tidak terkoneksi backend</div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="search">
+          <input id="searchInput" placeholder="Cari nama atau NISN..." />
+          <button class="btn" onclick="alert('Demo: fitur search belum terhubung')">Cari</button>
+        </div>
+        <div>
+          <button class="btn" id="btnLogout" onclick="resetToLogin()">Logout</button>
+        </div>
+      </div>
+
+      <!-- VIEWS -->
+      <section id="view-dashboard" class="view">
+        <h2>Dashboard Admin</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Total Siswa</h3>
+            <div class="stat" id="statTotal">1200</div>
+            <div class="muted">Terdaftar</div>
+          </div>
+          <div class="card">
+            <h3>Kartu Siap Cetak</h3>
+            <div class="stat">1120</div>
+            <div class="muted">PDF tersedia</div>
+          </div>
+          <div class="card">
+            <h3>Permintaan Perbaikan</h3>
+            <div class="stat">8</div>
+            <div class="muted">Menunggu persetujuan</div>
           </div>
         </div>
-        <div class="text-right">
-          <p class="text-sm text-gray-500">SELAMAT DATANG DI VAN KARTU</p>
+
+        <div class="card" style="margin-top:18px">
+          <h3>Preview Kartu (Contoh)</h3>
+          <div style="display:flex;gap:18px;align-items:center;margin-top:12px">
+            <div class="card-preview">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:700">SMK VAN CENDEKIA</div>
+                  <div style="font-size:12px;opacity:0.9">Kartu Pelajar</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <div style="width:64px;height:64px;background:#ffffff22;border-radius:8px"></div>
+                  <div style="font-size:11px;margin-top:6px">Logo</div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:12px;align-items:center">
+                <div style="width:84px;height:104px;background:#ffffff22;border-radius:8px"></div>
+                <div>
+                  <div style="font-size:14px;font-weight:800">Nama Siswa</div>
+                  <div style="font-size:13px">NISN: 0123456789</div>
+                  <div style="font-size:13px">NIS: 2021001</div>
+                </div>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div style="font-size:12px">Tanda Tangan Kepala Sekolah</div>
+                <div style="width:64px;height:64px;background:#ffffff22;border-radius:6px"></div>
+              </div>
+            </div>
+
+            <div style="flex:1">
+              <p class="muted">Kartu pelajar berisi data penting dan QR Code untuk verifikasi. Desain latar, logo, dan tanda tangan dapat diubah melalui pengaturan.</p>
+              <button class="btn" style="margin-top:12px" onclick="alert('Demo: cetak ke PDF akan memanggil backend di implementasi nyata')">Cetak Kartu (PDF)</button>
+            </div>
+          </div>
         </div>
-      </header>
 
-      <!-- Pages container -->
-      <main class="bg-white p-6 rounded shadow">
+      </section>
 
-        <!-- Login Page -->
-        <section id="page-login">
-          <div class="max-w-xl mx-auto">
-            <h2 class="text-xl font-semibold mb-4">Masuk ke VAN KARTU</h2>
-            <form id="formLogin" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Username</label>
-                <input id="loginUsername" required class="mt-1 block w-full rounded border-gray-300 shadow-sm" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input id="loginPassword" type="password" required class="mt-1 block w-full rounded border-gray-300 shadow-sm" />
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="text-sm text-gray-600">Login Admin: <code>Van64 / Van1909</code></div>
-                <button class="px-4 py-2 bg-blue-600 text-white rounded" type="submit">Login</button>
-              </div>
-            </form>
+      <section id="view-students" class="view" style="display:none">
+        <h2>Data Siswa</h2>
+        <div class="card">
+          <table>
+            <thead>
+              <tr><th>Foto</th><th>Nama</th><th>NISN</th><th>NIS</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="studentsTable">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-            <div class="mt-6 text-sm text-gray-500">
-              Tip: Untuk Dibuat Oleh: Ivan Arifestian, S.Pd
+      <section id="view-import" class="view" style="display:none">
+        <h2>Import Data Siswa (Excel)</h2>
+        <div class="card">
+          <p class="muted">Gunakan template: <strong>NAMA_LENGKAP, NISN, NIS, JENIS_KELAMIN, TANGGAL_LAHIR</strong></p>
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <input type="file" id="excelFile" accept=".xlsx,.xls" />
+            <button class="btn" onclick="simulateImport()">Unggah</button>
+          </div>
+          <div id="importResult" style="margin-top:12px" class="muted"></div>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view" style="display:none">
+        <h2>Pengaturan Sekolah</h2>
+        <div class="card">
+          <div style="display:flex;gap:18px;align-items:center">
+            <div style="width:96px;height:96px;background:var(--glass);border-radius:10px;display:flex;align-items:center;justify-content:center">Logo</div>
+            <div style="flex:1">
+              <div class="form-group">
+                <label>Nama Sekolah</label>
+                <input value="SMK VAN CENDEKIA" />
+              </div>
+              <div class="form-group">
+                <label>Nama Kepala Sekolah</label>
+                <input value="Drs. Kepala Sekolah" />
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn">Simpan</button>
+                <button onclick="alert('Demo: reset ke default')">Reset</button>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- Admin Dashboard -->
-        <section id="page-admin" class="hidden-page">
-          <div class="flex gap-6">
-            <aside class="w-72 bg-gray-50 p-4 rounded">
-              <h3 class="font-semibold mb-3">Menu Admin</h3>
-              <nav class="flex flex-col gap-2">
-                <button class="admin-nav p-2 rounded text-left" data-page="admin-upload-excel">Upload Data Siswa (Excel)</button>
-                <button class="admin-nav p-2 rounded text-left" data-page="admin-upload-photos">Upload Foto (Massal)</button>
-                <button class="admin-nav p-2 rounded text-left" data-page="admin-manage">Manajemen Data Siswa</button>
-                <button class="admin-nav p-2 rounded text-left" data-page="admin-settings">Pengaturan Sekolah</button>
-                <button class="admin-nav p-2 rounded text-left" data-page="admin-print">Cetak Kartu</button>
-                <button id="btnLogout" class="mt-4 px-3 py-2 bg-red-500 text-white rounded">Logout</button>
-              </nav>
-            </aside>
-
-            <div class="flex-1">
-              <!-- Upload Excel -->
-              <div id="admin-upload-excel" class="admin-page">
-                <h3 class="font-semibold mb-3">Upload Data Siswa (Excel)</h3>
-                <p class="text-sm text-gray-600">Download template, isi lalu upload. Kolom: NAMA_LENGKAP, NISN, NIS, JENIS_KELAMIN, TANGGAL_LAHIR</p>
-                <div class="mt-3 flex gap-3 items-center">
-                  <a id="downloadTemplate" class="px-3 py-2 bg-gray-200 rounded" href="#">Download Template</a>
-                  <input type="file" id="inputExcel" accept=".xlsx,.xls" />
-                </div>
-              </div>
-
-              <!-- Upload Photos -->
-              <div id="admin-upload-photos" class="admin-page hidden-page">
-                <h3 class="font-semibold mb-3">Upload Foto Siswa (Massal)</h3>
-                <p class="text-sm text-gray-600">Nama file harus <code>NIS.jpg</code> atau <code>NIS.png</code> agar otomatis dipasangkan.</p>
-                <input type="file" id="inputPhotos" accept="image/jpeg, image/png" multiple />
-                <div id="photoUploadResult" class="mt-3 text-sm text-green-600"></div>
-              </div>
-
-              <!-- Manage Students -->
-              <div id="admin-manage" class="admin-page hidden-page">
-                <div class="flex items-center justify-between">
-                  <h3 class="font-semibold">Manajemen Data Siswa</h3>
-                  <button id="btnAddStudent" class="px-3 py-1 bg-green-600 text-white rounded">Tambah Siswa</button>
-                </div>
-                <div class="mt-3">
-                  <input id="searchStudent" placeholder="Cari nama / NISN / NIS" class="w-full p-2 rounded border" />
-                </div>
-                <div class="table-scroll mt-3">
-                  <table class="w-full text-sm border-collapse">
-                    <thead class="bg-gray-100 sticky top-0">
-                      <tr>
-                        <th class="p-2 border">#</th>
-                        <th class="p-2 border">Foto</th>
-                        <th class="p-2 border">Nama</th>
-                        <th class="p-2 border">NISN</th>
-                        <th class="p-2 border">NIS</th>
-                        <th class="p-2 border">TTL</th>
-                        <th class="p-2 border">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody id="studentsTable"></tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- Settings -->
-              <div id="admin-settings" class="admin-page hidden-page">
-                <h3 class="font-semibold">Pengaturan Sekolah & Desain</h3>
-                <div class="grid grid-cols-2 gap-4 mt-3">
-                  <div>
-                    <label class="block text-sm">Nama Sekolah</label>
-                    <input id="inpSchoolName" class="mt-1 p-2 w-full rounded border" />
-                  </div>
-                  <div>
-                    <label class="block text-sm">Alamat</label>
-                    <input id="inpSchoolAddress" class="mt-1 p-2 w-full rounded border" />
-                  </div>
-                  <div>
-                    <label class="block text-sm">Telepon</label>
-                    <input id="inpSchoolPhone" class="mt-1 p-2 w-full rounded border" />
-                  </div>
-                  <div>
-                    <label class="block text-sm">Logo Sekolah (PNG/JPG)</label>
-                    <input id="inpSchoolLogo" type="file" accept="image/*" />
-                  </div>
-                  <div>
-                    <label class="block text-sm">Tanda Tangan Kepala Sekolah</label>
-                    <input id="inpSignature" type="file" accept="image/*" />
-                    <input id="inpHeadName" class="mt-2 p-2 w-full rounded border" placeholder="Nama Kepala Sekolah" />
-                  </div>
-                  <div>
-                    <label class="block text-sm">Desain Latar Kartu (opsional)</label>
-                    <input id="inpCardBg" type="file" accept="image/*" />
-                  </div>
-                </div>
-                <div class="mt-4">
-                  <button id="saveSettings" class="px-4 py-2 bg-blue-600 text-white rounded">Simpan Pengaturan</button>
-                </div>
-              </div>
-
-              <!-- Print / Generate -->
-              <div id="admin-print" class="admin-page hidden-page">
-                <h3 class="font-semibold mb-3">Cetak Kartu Pelajar</h3>
-                <p class="text-sm text-gray-600">Pilih siswa di bawah lalu klik "Generate Kartu".</p>
-                <div class="mt-3">
-                  <select id="selectStudentsPrint" multiple class="w-full p-2 border rounded h-48"></select>
-                </div>
-                <div class="mt-3 flex gap-3">
-                  <button id="btnGenerateCards" class="px-3 py-2 bg-indigo-600 text-white rounded">Generate Kartu (PDF)</button>
-                  <button id="btnPreviewCard" class="px-3 py-2 bg-gray-200 rounded">Preview Satu Kartu</button>
-                </div>
-                <div class="mt-6">
-                  <div id="cardPreviewContainer"></div>
-                </div>
-              </div>
-
+      <section id="view-student-view" class="view" style="display:none">
+        <h2>Dashboard Siswa (Contoh)</h2>
+        <div class="profile card">
+          <div class="photo">Foto</div>
+          <div class="info">
+            <h3 id="studentName">Nama Siswa</h3>
+            <div class="muted">NISN: <span id="studentNisn">0123456789</span></div>
+            <p style="margin-top:12px">Tanggal Lahir: <span id="studentDob">2006-08-17</span></p>
+            <div style="margin-top:12px">
+              <button class="btn" onclick="alert('Ajukan perbaikan: fitur demo')">Ajukan Perbaikan</button>
+              <button style="margin-left:8px" onclick="downloadCard()">Unduh Kartu (PNG)</button>
             </div>
           </div>
-        </section>
 
-        <!-- Student Page -->
-        <section id="page-student" class="hidden-page">
-          <div class="flex gap-6">
-            <aside class="w-72 bg-gray-50 p-4 rounded">
-              <h3 class="font-semibold mb-3">Menu Siswa</h3>
-              <nav class="flex flex-col gap-2">
-                <button class="student-nav p-2 rounded text-left" data-page="student-profile">Profil Saya</button>
-                <button class="student-nav p-2 rounded text-left" data-page="student-photo">Ubah Foto</button>
-                <button class="student-nav p-2 rounded text-left" data-page="student-card">Lihat & Unduh Kartu</button>
-                <button id="btnLogout2" class="mt-4 px-3 py-2 bg-red-500 text-white rounded">Logout</button>
-              </nav>
-            </aside>
-
-            <div class="flex-1">
-              <div id="student-profile" class="student-page">
-                <h3 class="font-semibold">Profil Saya</h3>
-                <div class="mt-3 bg-gray-50 p-4 rounded">
-                  <div class="flex gap-4 items-center">
-                    <img id="studentAvatar" src="" class="avatar" />
-                    <div>
-                      <div id="studentFullname" class="text-lg font-semibold">Nama</div>
-                      <div class="text-sm text-gray-600">NISN: <span id="studentNISN">-</span></div>
-                      <div class="text-sm text-gray-600">NIS: <span id="studentNIS">-</span></div>
-                      <div class="text-sm text-gray-600">TTL: <span id="studentTTL">-</span></div>
-                    </div>
+          <div style="margin-left:20px">
+            <div style="width:320px">
+              <div class="card-preview">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-weight:700">SMK VAN CENDEKIA</div>
+                    <div style="font-size:12px;opacity:0.9">Kartu Pelajar</div>
                   </div>
-                  <div class="mt-4">
-                    <button id="btnRequestEdit" class="px-3 py-1 bg-yellow-500 text-white rounded">Ajukan Perbaikan Data</button>
-                    <button id="btnChangePassword" class="px-3 py-1 bg-gray-200 rounded">Ubah Password</button>
+                  <div style="width:64px;height:64px;background:#ffffff22;border-radius:8px"></div>
+                </div>
+
+                <div style="display:flex;gap:12px;align-items:center">
+                  <div style="width:84px;height:104px;background:#ffffff22;border-radius:8px"></div>
+                  <div>
+                    <div id="cardName" style="font-size:14px;font-weight:800">Nama Siswa</div>
+                    <div id="cardNisn" style="font-size:13px">NISN: 0123456789</div>
+                    <div id="cardNis" style="font-size:13px">NIS: 2021001</div>
                   </div>
                 </div>
-              </div>
 
-              <div id="student-photo" class="student-page hidden-page">
-                <h3 class="font-semibold">Ubah Foto Profil</h3>
-                <p class="text-sm text-gray-600">Unggah foto, sistem akan melakukan crop square otomatis untuk kartu.</p>
-                <input id="inpStudentPhoto" type="file" accept="image/*" />
-                <div class="mt-3">
-                  <canvas id="canvasCrop" class="border"></canvas>
-                  <div class="mt-2">
-                    <button id="btnSaveCropped" class="px-3 py-1 bg-green-600 text-white rounded">Simpan Foto</button>
-                  </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-size:12px">TTD Kepala</div>
+                  <div style="width:64px;height:64px;background:#ffffff22;border-radius:6px"></div>
                 </div>
               </div>
-
-              <div id="student-card" class="student-page hidden-page">
-                <h3 class="font-semibold">Kartu Pelajar</h3>
-                <div class="mt-3">
-                  <div id="studentCardPreview"></div>
-                  <div class="mt-3 flex gap-2">
-                    <button id="btnDownloadCardImg" class="px-3 py-2 bg-indigo-600 text-white rounded">Download PNG</button>
-                    <button id="btnDownloadCardPDF" class="px-3 py-2 bg-gray-200 rounded">Download PDF</button>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
-        </section>
 
-      </main>
-    </div>
+        </div>
+      </section>
+
+      <footer></footer>
+
+    </main>
   </div>
 
-  <!-- Card template (hidden) -->
-  <div id="templateCard" class="hidden">
-    <div class="card-preview card-bg p-3 text-white" style="width:350px;height:220px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <img id="tmplLogo" src="" style="height:44px;object-fit:contain;" />
-          <div>
-            <div id="tmplSchoolName" style="font-weight:700;font-size:14px;color:#fff">Nama Sekolah</div>
-            <div style="font-size:12px;color:#fff;opacity:0.9">Kartu Pelajar</div>
-          </div>
-        </div>
-        <div id="tmplQr"></div>
-      </div>
-      <div style="display:flex;margin-top:12px;gap:12px;">
-        <img id="tmplPhoto" src="" style="width:96px;height:100px;object-fit:cover;border:2px solid #fff;" />
-        <div style="flex:1;color:#fff">
-          <div id="tmplName" style="font-size:16px;font-weight:700"></div>
-          <div id="tmplNISN"></div>
-          <div id="tmplNIS"></div>
-          <div id="tmplGender"></div>
-          <div id="tmplTTL"></div>
-        </div>
-      </div>
-      <div style="position:absolute;bottom:12px;right:12px;text-align:center;color:#fff">
-        <img id="tmplSignature" src="" style="height:40px;display:block;margin-bottom:4px;" />
-        <div id="tmplHeadName" style="font-size:12px"></div>
-      </div>
-    </div>
-  </div>
+<script>
+  // Simple view switcher for demo
+  document.querySelectorAll('.nav button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.view;
+      showView(view);
+    });
+  });
 
-  <script>
-    // ----- Simple localStorage-backed 'DB' -----
-    const DB_KEY = 'van_kartu_db_v1';
-    const SETTINGS_KEY = 'van_kartu_settings_v1';
+  function showView(view){
+    // map view to section ids
+    const map = {
+      'dashboard':'view-dashboard',
+      'students':'view-students',
+      'import':'view-import',
+      'settings':'view-settings',
+      'student-view':'view-student-view'
+    };
+    document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+    const el = document.getElementById(map[view]);
+    if(el) el.style.display='block';
+  }
 
-    function loadDB() {
-      return JSON.parse(localStorage.getItem(DB_KEY) || JSON.stringify({students:[] }));
+  // Demo data
+  const students = [
+    {nama:'Mahesa Putra', nisn:'0043210001', nis:'2023001'},
+    {nama:'Siti Aminah', nisn:'0043210002', nis:'2023002'},
+    {nama:'Budi Santoso', nisn:'0043210003', nis:'2023003'},
+    {nama:'Rina Lestari', nisn:'0043210004', nis:'2023004'},
+    {nama:'Aulia Rahman', nisn:'0043210005', nis:'2023005'}
+  ];
+
+  function renderStudents(){
+    const tbody = document.getElementById('studentsTable');
+    tbody.innerHTML = '';
+    students.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><img class="avatar" src="https://via.placeholder.com/80x80.png?text=Foto" alt="foto"></td>
+        <td>${s.nama}</td>
+        <td>${s.nisn}</td>
+        <td>${s.nis}</td>
+        <td><button onclick="viewStudent('${s.nisn}')">Lihat</button></td>
+      `;
+      tbody.appendChild(tr);
+    })
+  }
+  renderStudents();
+
+  function viewStudent(nisn){
+    const s = students.find(x=>x.nisn===nisn);
+    if(!s) return alert('Siswa tidak ditemukan');
+    // populate student view
+    document.getElementById('studentName').textContent = s.nama;
+    document.getElementById('studentNisn').textContent = s.nisn;
+    document.getElementById('studentDob').textContent = '2007-01-15';
+    document.getElementById('cardName').textContent = s.nama;
+    document.getElementById('cardNisn').textContent = 'NISN: '+s.nisn;
+    document.getElementById('cardNis').textContent = 'NIS: '+s.nis;
+    // switch to student view
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-view="student-view"]').classList.add('active');
+    showView('student-view');
+  }
+
+  function simulateImport(){
+    const f = document.getElementById('excelFile');
+    if(!f.files.length) return alert('Pilih file Excel terlebih dahulu');
+    document.getElementById('importResult').textContent = 'Memproses file... (demo, tidak benar-benar diimport)';
+    setTimeout(()=>{
+      document.getElementById('importResult').textContent = 'Import selesai. 5 baris ditambahkan. 0 error.';
+    },1200);
+  }
+
+  function downloadCard(){
+    alert('Demo: fungsi unduh kartu akan membuat canvas/PDF pada implementasi nyata');
+  }
+
+  function resetToLogin(){
+    if(confirm('Keluar dari demo?')){
+      // in demo, just reload page
+      location.reload();
     }
-    function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  }
 
-    function loadSettings(){ return JSON.parse(localStorage.getItem(SETTINGS_KEY) || JSON.stringify({schoolName:'Sekolah Contoh', address:'-', phone:'-', logo:'', signature:'', headName:'', cardBg:''})); }
-    function saveSettings(s){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
-
-    // init default admin credentials stored in memory (not secure, demo only)
-    const ADMIN_CRED = {username:'Van64', password:'Van1909'};
-
-    // ----- UI helpers -----
-    function showPage(id){
-      document.querySelectorAll('section').forEach(s=>s.classList.add('hidden-page'));
-      document.getElementById(id).classList.remove('hidden-page');
-    }
-
-    // login handler
-    document.getElementById('formLogin').addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const u = document.getElementById('loginUsername').value.trim();
-      const p = document.getElementById('loginPassword').value;
-      // admin
-      if(u === ADMIN_CRED.username && p === ADMIN_CRED.password){
-        startAdmin();
-        return;
-      }
-      // student: username==NISN and password==NISN (initial)
-      const db = loadDB();
-      const student = db.students.find(s => s.NISN === u);
-      if(student){
-        if(p === (student.password || student.NISN)){
-          startStudent(student.NISN);
-          return;
-        }
-      }
-      alert('Login gagal. Periksa username/password.');
-    });
-
-    // Logout
-    document.getElementById('btnLogout').addEventListener('click', ()=>{ location.reload(); });
-    document.getElementById('btnLogout2').addEventListener('click', ()=>{ location.reload(); });
-
-    // Navigation in admin
-    document.querySelectorAll('.admin-nav').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.admin-page').forEach(p=>p.classList.add('hidden-page'));
-        document.getElementById(btn.dataset.page).classList.remove('hidden-page');
-      });
-    });
-
-    // Navigation in student
-    document.querySelectorAll('.student-nav').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.student-page').forEach(p=>p.classList.add('hidden-page'));
-        document.getElementById(btn.dataset.page).classList.remove('hidden-page');
-      });
-    });
-
-    // download template
-    document.getElementById('downloadTemplate').addEventListener('click', (e)=>{
-      e.preventDefault();
-      const wb = XLSX.utils.book_new();
-      const data = [['NAMA_LENGKAP','NISN','NIS','JENIS_KELAMIN','TANGGAL_LAHIR'],['Budi Santoso','0012345678','A001','Laki-Laki','2006-04-12']];
-      const ws = XLSX.utils.aoa_to_sheet(data);
-      XLSX.utils.book_append_sheet(wb, ws, 'Template');
-      XLSX.writeFile(wb, 'template_van_kartu.xlsx');
-    });
-
-    // Excel upload parse
-    document.getElementById('inputExcel').addEventListener('change', async (ev)=>{
-      const f = ev.target.files[0];
-      if(!f) return;
-      const data = await f.arrayBuffer();
-      const wb = XLSX.read(data);
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-      // expecting header row
-      const header = json[0].map(h=>h.toString().toUpperCase());
-      const idx = (name)=> header.indexOf(name);
-      const db = loadDB();
-      for(let r=1;r<json.length;r++){
-        const row = json[r];
-        if(!row || row.length===0) continue;
-        const student = {
-          NAMA_LENGKAP: row[idx('NAMA_LENGKAP')] || row[0] || '',
-          NISN: (row[idx('NISN')] || '').toString(),
-          NIS: (row[idx('NIS')] || '').toString(),
-          JENIS_KELAMIN: row[idx('JENIS_KELAMIN')] || '',
-          TANGGAL_LAHIR: row[idx('TANGGAL_LAHIR')] || '',
-          photo:'', password: ''
-        };
-        if(!student.NISN) continue;
-        // replace or add
-        const exist = db.students.findIndex(s=>s.NISN===student.NISN);
-        if(exist>=0) db.students[exist] = {...db.students[exist], ...student};
-        else db.students.push(student);
-      }
-      saveDB(db);
-      alert('Import selesai. Total siswa: ' + db.students.length);
-      refreshStudentsTable();
-      populateSelectForPrint();
-    });
-
-    // Photo bulk upload
-    document.getElementById('inputPhotos').addEventListener('change', async (ev)=>{
-      const files = Array.from(ev.target.files);
-      const db = loadDB();
-      let matched = 0;
-      for(const f of files){
-        const name = f.name.split('.').slice(0, -1).join('.');
-        const targetNISN = name;
-        const reader = new FileReader();
-        const dataUrl = await new Promise(res=>{reader.onload = ()=>res(reader.result); reader.readAsDataURL(f);});
-        const idx = db.students.findIndex(s=>s.NISN === targetNISN);
-        if(idx>=0){ db.students[idx].photo = dataUrl; matched++; }
-      }
-      saveDB(db);
-      document.getElementById('photoUploadResult').innerText = `Selesai. Cocokkan: ${matched} foto.`;
-      refreshStudentsTable();
-    });
-
-    // Manage students table
-    function refreshStudentsTable(){
-      const db = loadDB();
-      const tbody = document.getElementById('studentsTable'); tbody.innerHTML = '';
-      const query = document.getElementById('searchStudent').value.toLowerCase();
-      db.students.forEach((s, i)=>{
-        const text = (s.NAMA_LENGKAP + ' ' + s.NISN + ' ' + s.NIS).toLowerCase();
-        if(query && !text.includes(query)) return;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="p-2 border">${i+1}</td>
-          <td class="p-2 border"><img src="${s.photo||''}" class="w-12 h-14 object-cover" /></td>
-          <td class="p-2 border">${s.NAMA_LENGKAP||''}</td>
-          <td class="p-2 border">${s.NISN||''}</td>
-          <td class="p-2 border">${s.NIS||''}</td>
-          <td class="p-2 border">${s.TANGGAL_LAHIR||''}</td>
-          <td class="p-2 border">
-            <button class="btn-edit px-2 py-1 bg-yellow-300 rounded" data-nisn="${s.NISN}">Edit</button>
-            <button class="btn-delete px-2 py-1 bg-red-400 text-white rounded" data-nisn="${s.NISN}">Hapus</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      document.querySelectorAll('.btn-delete').forEach(b=>b.addEventListener('click', (e)=>{
-        if(!confirm('Hapus siswa ini?')) return;
-        const nisn = e.target.dataset.nisn;
-        const db = loadDB(); db.students = db.students.filter(s=>s.NISN!==nisn); saveDB(db); refreshStudentsTable(); populateSelectForPrint();
-      }));
-      document.querySelectorAll('.btn-edit').forEach(b=>b.addEventListener('click', (e)=>{
-        const nisn = e.target.dataset.nisn; openEditModal(nisn);
-      }));
-    }
-    document.getElementById('searchStudent').addEventListener('input', refreshStudentsTable);
-
-    // Add student manual
-    document.getElementById('btnAddStudent').addEventListener('click', ()=>{
-      const name = prompt('Nama lengkap'); if(!name) return;
-      const nisn = prompt('NISN'); if(!nisn) return;
-      const nis = prompt('NIS (opsional)')||'';
-      const gender = prompt('Jenis kelamin (Laki-Laki/Perempuan)')||'';
-      const ttl = prompt('Tanggal lahir (YYYY-MM-DD)')||'';
-      const db = loadDB();
-      if(db.students.find(s=>s.NISN===nisn)){ alert('NISN sudah ada'); return; }
-      db.students.push({NAMA_LENGKAP:name, NISN:nisn, NIS:nis, JENIS_KELAMIN:gender, TANGGAL_LAHIR:ttl, photo:'', password:''});
-      saveDB(db); refreshStudentsTable(); populateSelectForPrint();
-    });
-
-    function openEditModal(nisn){
-      const db = loadDB(); const s = db.students.find(x=>x.NISN===nisn);
-      if(!s) return alert('Siswa tidak ditemukan');
-      const name = prompt('Nama lengkap', s.NAMA_LENGKAP);
-      if(name===null) return;
-      s.NAMA_LENGKAP = name;
-      s.NIS = prompt('NIS', s.NIS)||s.NIS;
-      s.JENIS_KELAMIN = prompt('Jenis kelamin', s.JENIS_KELAMIN)||s.JENIS_KELAMIN;
-      s.TANGGAL_LAHIR = prompt('Tanggal lahir', s.TANGGAL_LAHIR)||s.TANGGAL_LAHIR;
-      saveDB(db); refreshStudentsTable(); populateSelectForPrint();
-    }
-
-    // Settings save
-    document.getElementById('saveSettings').addEventListener('click', async ()=>{
-      const s = loadSettings();
-      s.schoolName = document.getElementById('inpSchoolName').value || s.schoolName;
-      s.address = document.getElementById('inpSchoolAddress').value || s.address;
-      s.phone = document.getElementById('inpSchoolPhone').value || s.phone;
-      s.headName = document.getElementById('inpHeadName').value || s.headName;
-      // files
-      const logoFile = document.getElementById('inpSchoolLogo').files[0];
-      if(logoFile){ s.logo = await fileToDataUrl(logoFile); }
-      const signFile = document.getElementById('inpSignature').files[0];
-      if(signFile){ s.signature = await fileToDataUrl(signFile); }
-      const bgFile = document.getElementById('inpCardBg').files[0];
-      if(bgFile){ s.cardBg = await fileToDataUrl(bgFile); }
-      saveSettings(s);
-      applySettingsToUI();
-      alert('Pengaturan disimpan');
-    });
-
-    function fileToDataUrl(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
-
-    function applySettingsToUI(){
-      const s = loadSettings();
-      document.getElementById('schoolNameSmall').innerText = s.schoolName || 'Sekolah Anda';
-      if(s.logo){ document.getElementById('schoolLogoSmall').src = s.logo; } else document.getElementById('schoolLogoSmall').src='';
-    }
-
-    // Admin start
-    function startAdmin(){
-      showPage('page-admin');
-      document.getElementById('admin-upload-excel').classList.remove('hidden-page');
-      applySettingsToUI();
-      refreshStudentsTable();
-      populateSelectForPrint();
-    }
-
-    // Populate print select
-    function populateSelectForPrint(){
-      const s = loadDB().students;
-      const sel = document.getElementById('selectStudentsPrint'); sel.innerHTML='';
-      s.forEach(st=>{
-        const opt = document.createElement('option'); opt.value = st.NISN; opt.text = `${st.NAMA_LENGKAP} — ${st.NISN}`; sel.appendChild(opt);
-      });
-    }
-
-    // Generate cards PDF for selected
-    document.getElementById('btnGenerateCards').addEventListener('click', async ()=>{
-      const sel = Array.from(document.getElementById('selectStudentsPrint').selectedOptions).map(o=>o.value);
-      if(sel.length===0){ alert('Pilih minimal 1 siswa'); return; }
-      const db = loadDB(); const settings = loadSettings();
-      // create a container
-      const container = document.createElement('div');
-      for(const nisn of sel){
-        const st = db.students.find(x=>x.NISN===nisn); if(!st) continue;
-        const card = await renderCardElement(st, settings);
-        container.appendChild(card);
-        container.appendChild(document.createElement('br'));
-      }
-      document.body.appendChild(container);
-      // use html2pdf
-      const opt = { margin:10, filename:'kartu_pelajar.pdf', image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}};
-      await html2pdf().from(container).set(opt).save();
-      document.body.removeChild(container);
-    });
-
-    // Preview one card
-    document.getElementById('btnPreviewCard').addEventListener('click', async ()=>{
-      const sel = document.getElementById('selectStudentsPrint'); if(sel.options.length===0) return alert('Tidak ada siswa');
-      const nisn = sel.options[0].value; const st = loadDB().students.find(x=>x.NISN===nisn);
-      const settings = loadSettings(); const card = await renderCardElement(st, settings);
-      const container = document.getElementById('cardPreviewContainer'); container.innerHTML=''; container.appendChild(card);
-    });
-
-    async function renderCardElement(student, settings){
-      const wrapper = document.createElement('div'); wrapper.style.width='350px'; wrapper.style.height='220px'; wrapper.style.margin='8px'; wrapper.className='card-preview';
-      // clone template
-      const tpl = document.getElementById('templateCard').firstElementChild.cloneNode(true);
-      tpl.style.position='relative';
-      // set background
-      if(settings.cardBg) tpl.style.backgroundImage = `url(${settings.cardBg})`;
-      tpl.querySelector('#tmplLogo').src = settings.logo || '';
-      tpl.querySelector('#tmplSchoolName').innerText = settings.schoolName || 'Nama Sekolah';
-      tpl.querySelector('#tmplPhoto').src = student.photo || '';
-      tpl.querySelector('#tmplName').innerText = student.NAMA_LENGKAP || '';
-      tpl.querySelector('#tmplNISN').innerText = 'NISN: ' + (student.NISN||'');
-      tpl.querySelector('#tmplNIS').innerText = 'NIS: ' + (student.NIS||'');
-      tpl.querySelector('#tmplGender').innerText = 'Jenis Kelamin: ' + (student.JENIS_KELAMIN||'');
-      tpl.querySelector('#tmplTTL').innerText = 'TTL: ' + (student.TANGGAL_LAHIR||'');
-      tpl.querySelector('#tmplSignature').src = settings.signature || '';
-      tpl.querySelector('#tmplHeadName').innerText = settings.headName || '';
-      // QR
-      const qrd = tpl.querySelector('#tmplQr'); qrd.innerHTML='';
-      const verifyUrl = `https://van-kartu.local/verify?nisn=${encodeURIComponent(student.NISN||'')}`; // placeholder
-      await QRCode.toCanvas(verifyUrl, {width:80}, (err, canvas)=>{ if(!err) qrd.appendChild(canvas); });
-
-      wrapper.appendChild(tpl);
-      return wrapper;
-    }
-
-    // Student start
-    function startStudent(nisn){
-      showPage('page-student');
-      const db = loadDB(); const s = db.students.find(x=>x.NISN===nisn);
-      if(!s) return alert('Siswa tidak ditemukan');
-      window.currentStudent = s.NISN;
-      fillStudentProfileUI(s);
-    }
-
-    function fillStudentProfileUI(s){
-      document.getElementById('studentAvatar').src = s.photo || '';
-      document.getElementById('studentFullname').innerText = s.NAMA_LENGKAP || '';
-      document.getElementById('studentNISN').innerText = s.NISN || '';
-      document.getElementById('studentNIS').innerText = s.NIS || '';
-      document.getElementById('studentTTL').innerText = s.TANGGAL_LAHIR || '';
-    }
-
-    // request edit
-    document.getElementById('btnRequestEdit').addEventListener('click', ()=>{
-      const note = prompt('Jelaskan perubahan yang diminta:'); if(!note) return;
-      // store request as flag in student record
-      const db = loadDB(); const s = db.students.find(x=>x.NISN===window.currentStudent);
-      if(s){ s.changeRequest = note; saveDB(db); alert('Permintaan perubahan dikirim, menunggu persetujuan admin.'); }
-    });
-
-    // change password (student)
-    document.getElementById('btnChangePassword').addEventListener('click', ()=>{
-      const p1 = prompt('Password baru:'); if(!p1) return; const p2 = prompt('Ulangi password:'); if(p1!==p2) return alert('Tidak cocok');
-      const db = loadDB(); const s = db.students.find(x=>x.NISN===window.currentStudent);
-      s.password = p1; saveDB(db); alert('Password berhasil diubah');
-    });
-
-    // student photo crop & save
-    let imgForCrop = null;
-    document.getElementById('inpStudentPhoto').addEventListener('change', async (ev)=>{
-      const f = ev.target.files[0]; if(!f) return;
-      const data = await fileToDataUrl(f);
-      imgForCrop = new Image(); imgForCrop.onload = ()=>{ drawCropPreview(); }; imgForCrop.src = data;
-    });
-    function drawCropPreview(){
-      const c = document.getElementById('canvasCrop'); const ctx = c.getContext('2d');
-      // square center-crop
-      const size = 320; c.width = size; c.height = size;
-      const iw = imgForCrop.width; const ih = imgForCrop.height;
-      const scale = Math.max(size/iw, size/ih);
-      const sw = size/scale; const sh = size/scale;
-      const sx = (iw - sw)/2; const sy = (ih - sh)/2;
-      ctx.clearRect(0,0,size,size);
-      ctx.drawImage(imgForCrop, sx, sy, sw, sh, 0,0,size,size);
-    }
-    document.getElementById('btnSaveCropped').addEventListener('click', ()=>{
-      const c = document.getElementById('canvasCrop'); const dataUrl = c.toDataURL('image/jpeg', 0.9);
-      const db = loadDB(); const s = db.students.find(x=>x.NISN===window.currentStudent);
-      s.photo = dataUrl; saveDB(db); fillStudentProfileUI(s); alert('Foto disimpan'); refreshStudentsTable();
-    });
-
-    // student card preview and download
-    async function buildStudentCardForCurrent(){
-      const db = loadDB(), settings = loadSettings(); const s = db.students.find(x=>x.NISN===window.currentStudent);
-      const card = await renderCardElement(s, settings);
-      const container = document.getElementById('studentCardPreview'); container.innerHTML=''; container.appendChild(card);
-      return card;
-    }
-    document.getElementById('btnDownloadCardImg').addEventListener('click', async ()=>{
-      const card = await buildStudentCardForCurrent();
-      // convert DOM to canvas via html2canvas (used internally by html2pdf) but easiest: use html2pdf to produce image
-      const opt = { margin:0, filename:`kartu_${window.currentStudent}.pdf`, image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2} };
-      await html2pdf().from(card).set(opt).toPdf().get('pdf').then(pdf=>{ pdf.save(`kartu_${window.currentStudent}.pdf`); });
-    });
-    document.getElementById('btnDownloadCardPDF').addEventListener('click', async ()=>{
-      const card = await buildStudentCardForCurrent();
-      const opt = { margin:10, filename:`kartu_${window.currentStudent}.pdf`, image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2} };
-      await html2pdf().from(card).set(opt).save();
-    });
-
-    // Setup initial UI values
-    (function init(){
-      applySettingsToUI();
-      // load settings into inputs
-      const s = loadSettings();
-      document.getElementById('inpSchoolName').value = s.schoolName || '';
-      document.getElementById('inpSchoolAddress').value = s.address || '';
-      document.getElementById('inpSchoolPhone').value = s.phone || '';
-      document.getElementById('inpHeadName').value = s.headName || '';
-      refreshStudentsTable(); populateSelectForPrint();
-    })();
-
-  </script>
+</script>
 </body>
 </html>
