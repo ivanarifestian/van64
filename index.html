@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAN KARTU - Aplikasi Kartu Pelajar Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card-container {
+            width: 560px; /* Lebar kartu standar */
+            height: 320px; /* Tinggi kartu standar */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-size: cover;
+            background-position: center;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Sembunyikan panah di input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Container Utama Aplikasi -->
+    <div id="app-container">
+
+        <!-- Halaman Login -->
+        <div id="login-page" class="flex items-center justify-center min-h-screen bg-gray-900">
+            <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg">
+                <div class="text-center">
+                    <img id="login-logo" src="https://iili.io/FsvxSNj.png" alt="Logo Sekolah" class="w-24 h-24 mx-auto rounded-full mb-4">
+                    <h2 id="login-school-name" class="text-3xl font-bold text-gray-900">VAN KARTU</h2>
+                    <p class="text-gray-500">Login Van Kartu</p>
+                </div>
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label for="username" class="text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="username" name="username" required class="w-full px-4 py-2 mt-2 text-base text-gray-700 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" name="password" required class="w-full px-4 py-2 mt-2 text-base text-gray-700 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                            Login
+                        </button>
+                    </div>
+                </form>
+                <div id="login-error" class="text-red-500 text-center hidden"></div>
+            </div>
+        </div>
+
+        <!-- Dasbor Admin -->
+        <div id="admin-dashboard" class="hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <img id="admin-logo" src="https://placehold.co/40x40/3B82F6/FFFFFF?text=Logo" alt="Logo" class="h-10 w-10 mr-4 rounded-full">
+                    <h1 id="admin-school-name" class="text-2xl font-bold">Dasbor Admin</h1>
+                </div>
+                <button id="logout-btn" class="px-4 py-2 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </header>
+
+            <!-- Konten Admin -->
+            <main class="p-6">
+                <!-- Navigasi Tab -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                            <a href="#" class="tab-link active-tab" data-tab="manage-students">Manajemen Siswa</a>
+                            <a href="#" class="tab-link" data-tab="upload-data">Upload Data</a>
+                            <a href="#" class="tab-link" data-tab="settings">Pengaturan</a>
+                            <a href="#" class="tab-link" data-tab="print-cards">Cetak Kartu</a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Konten Tab -->
+                <div id="manage-students" class="tab-content">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Data Siswa</h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <input type="text" id="search-student" placeholder="Cari siswa (Nama/NISN)..." class="w-1/3 px-4 py-2 border rounded-lg">
+                            <button id="add-student-btn" class="px-4 py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700">Tambah Siswa</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead class="bg-gray-800 text-white">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left">Foto</th>
+                                        <th class="py-3 px-4 text-left">Nama Lengkap</th>
+                                        <th class="py-3 px-4 text-left">NISN</th>
+                                        <th class="py-3 px-4 text-left">NIS</th>
+                                        <th class="py-3 px-4 text-left">Jenis Kelamin</th>
+                                        <th class="py-3 px-4 text-left">Tgl Lahir</th>
+                                        <th class="py-3 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-table-body">
+                                    <!-- Data siswa akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="upload-data" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Upload Data Excel -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-2xl font-bold mb-4">Upload Data Siswa (Excel)</h2>
+                            <p class="mb-4 text-gray-600">Impor data siswa secara massal. Pastikan kolom sesuai: NAMA_LENGKAP, NISN, NIS, JENIS_KELAMIN, TANGGAL_LAHIR.</p>
+                            <button id="download-template-btn" class="w-full mb-4 px-4 py-2 font-semibold text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200">
+                                <i class="fas fa-download mr-2"></i>Unduh Template Excel
+                            </button>
+                            <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                            <button id="upload-excel-btn" class="w-full mt-4 px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">Upload Excel</button>
+                        </div>
+                        <!-- Upload Foto Massal -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-2xl font-bold mb-4">Upload Foto Siswa (Massal)</h2>
+                            <p class="mb-4 text-gray-600">Unggah banyak foto sekaligus. Nama file foto harus sama dengan NISN siswa (contoh: 0012345678.jpg).</p>
+                            <input type="file" id="photo-files-input" multiple accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
+                            <button id="upload-photos-btn" class="w-full mt-4 px-4 py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700">Upload Foto</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings" class="tab-content hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Pengaturan Kartu & Sekolah</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Profil Sekolah -->
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Profil Sekolah</h3>
+                                <div class="space-y-4">
+                                    <input type="text" id="setting-school-name" placeholder="Nama Sekolah" class="w-full px-4 py-2 border rounded-lg">
+                                    <input type="text" id="setting-school-address" placeholder="Alamat Sekolah" class="w-full px-4 py-2 border rounded-lg">
+                                    <input type="text" id="setting-school-phone" placeholder="Telepon Sekolah" class="w-full px-4 py-2 border rounded-lg">
+                                    <label class="block text-sm font-medium">Logo Sekolah</label>
+                                    <input type="file" id="setting-logo-input" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"/>
+                                </div>
+                            </div>
+                            <!-- Pengaturan Kartu -->
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">Detail Kartu</h3>
+                                <div class="space-y-4">
+                                    <input type="text" id="setting-headmaster-name" placeholder="Nama Kepala Sekolah" class="w-full px-4 py-2 border rounded-lg">
+                                    <label class="block text-sm font-medium">Tanda Tangan Kepala Sekolah</label>
+                                    <input type="file" id="setting-signature-input" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"/>
+                                    <label class="block text-sm font-medium">Desain Latar Kartu</label>
+                                    <input type="file" id="setting-card-bg-input" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"/>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="save-settings-btn" class="mt-6 w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">Simpan Pengaturan</button>
+                    </div>
+                </div>
+
+                <div id="print-cards" class="tab-content hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Cetak Kartu Pelajar</h2>
+                        <p class="mb-4 text-gray-600">Pilih siswa yang kartunya ingin dicetak. Anda dapat memilih semua siswa atau beberapa saja.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <button id="select-all-students-btn" class="px-4 py-2 font-semibold text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200">Pilih Semua</button>
+                            <button id="deselect-all-students-btn" class="px-4 py-2 font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Batal Pilih</button>
+                            <button id="print-selected-btn" class="px-4 py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700"><i class="fas fa-print mr-2"></i>Cetak Kartu Terpilih (PDF)</button>
+                        </div>
+                        <div id="print-student-list" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-4 border rounded-lg">
+                            <!-- Daftar siswa untuk dicetak -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Dasbor Siswa -->
+        <div id="student-dashboard" class="hidden">
+             <!-- Header -->
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <img id="student-logo" src="https://placehold.co/40x40/3B82F6/FFFFFF?text=Logo" alt="Logo" class="h-10 w-10 mr-4 rounded-full">
+                    <h1 id="student-school-name" class="text-2xl font-bold">Profil Siswa</h1>
+                </div>
+                <button id="student-logout-btn" class="px-4 py-2 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </header>
+            <main class="p-6 flex justify-center items-start">
+                <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Tampilan Kartu -->
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4">Kartu Pelajar Digital Anda</h2>
+                        <div id="student-card-preview" class="mx-auto">
+                            <!-- Kartu pelajar akan dirender di sini -->
+                        </div>
+                        <div class="mt-4 flex space-x-4">
+                             <button id="download-card-png-btn" class="w-full px-4 py-2 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700"><i class="fas fa-image mr-2"></i>Unduh PNG</button>
+                             <button id="download-card-pdf-btn" class="w-full px-4 py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700"><i class="fas fa-file-pdf mr-2"></i>Unduh PDF</button>
+                        </div>
+                    </div>
+                    <!-- Form Edit Data -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Profil Saya</h2>
+                        <p class="mb-4 text-gray-600">Anda dapat mengajukan perbaikan data atau mengganti foto profil di sini.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="font-medium">Nama Lengkap</label>
+                                <p id="student-name" class="p-2 bg-gray-100 rounded-md"></p>
+                            </div>
+                            <div>
+                                <label class="font-medium">NISN</label>
+                                <p id="student-nisn" class="p-2 bg-gray-100 rounded-md"></p>
+                            </div>
+                             <div>
+                                <label class="font-medium">NIS</label>
+                                <p id="student-nis" class="p-2 bg-gray-100 rounded-md"></p>
+                            </div>
+                            <div>
+                                <label for="student-dob-edit" class="font-medium">Tanggal Lahir</label>
+                                <input type="date" id="student-dob-edit" class="w-full p-2 border rounded-md">
+                            </div>
+                            <div>
+                                <label for="student-gender-edit" class="font-medium">Jenis Kelamin</label>
+                                <select id="student-gender-edit" class="w-full p-2 border rounded-md">
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="student-photo-edit" class="font-medium">Ganti Foto Profil</label>
+                                <input type="file" id="student-photo-edit" accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"/>
+                            </div>
+                            <button id="save-student-changes-btn" class="w-full px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">Simpan Perubahan</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        
+        <!-- Modal untuk Tambah/Edit Siswa (Admin) -->
+        <div id="student-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+                <h2 id="modal-title" class="text-2xl font-bold mb-6">Tambah Siswa Baru</h2>
+                <form id="student-form">
+                    <input type="hidden" id="student-id">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="student-name-input" placeholder="Nama Lengkap" class="p-2 border rounded" required>
+                        <input type="number" id="student-nisn-input" placeholder="NISN" class="p-2 border rounded" required>
+                        <input type="number" id="student-nis-input" placeholder="NIS" class="p-2 border rounded" required>
+                        <input type="date" id="student-dob-input" class="p-2 border rounded" required>
+                        <select id="student-gender-input" class="p-2 border rounded" required>
+                            <option value="">Pilih Jenis Kelamin</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                        <div>
+                            <label class="block text-sm font-medium">Foto Siswa</label>
+                            <input type="file" id="student-photo-input" accept="image/jpeg, image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"/>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 mt-6">
+                        <button type="button" id="cancel-student-modal" class="px-4 py-2 bg-gray-300 rounded-lg">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+            <div class="text-white text-center">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p id="loading-text" class="mt-4 text-xl">Memproses...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Template Kartu Pelajar (untuk dirender) -->
+    <template id="card-template">
+        <div class="card-container relative rounded-xl overflow-hidden text-white flex flex-col p-3" style="background-image: url('https://placehold.co/825x525/003366/FFFFFF?text=Desain+Kartu');">
+            <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+            <div class="relative z-10 flex items-center border-b-2 border-white border-opacity-50 pb-2">
+                <img class="card-logo h-12 w-12 rounded-full mr-3" src="https://placehold.co/100x100/FFFFFF/000000?text=Logo" alt="Logo">
+                <div>
+                    <p class="font-bold text-sm leading-tight">KARTU TANDA PELAJAR</p>
+                    <p class="card-school-name text-xs font-semibold leading-tight">NAMA SEKOLAH</p>
+                </div>
+            </div>
+            <div class="relative z-10 flex-grow flex items-center pt-2">
+                <div class="w-1/3">
+                    <img class="card-photo w-20 h-24 object-cover rounded-lg border-2 border-white" src="https://placehold.co/200x250/CCCCCC/FFFFFF?text=Foto" alt="Foto Siswa">
+                </div>
+                <div class="w-2/3 text-xs pl-3 space-y-1">
+                    <p><strong class="font-semibold">Nama</strong><br><span class="card-name">NAMA LENGKAP SISWA</span></p>
+                    <p><strong class="font-semibold">NIS/NISN</strong><br><span class="card-nis-nisn">12345 / 0012345678</span></p>
+                    <p><strong class="font-semibold">Tgl. Lahir</strong><br><span class="card-dob">01 Januari 2008</span></p>
+                    <p><strong class="font-semibold">Jenis Kelamin</strong><br><span class="card-gender">Laki-laki</span></p>
+                </div>
+            </div>
+            <div class="relative z-10 flex justify-between items-end text-xs">
+                <div class="w-2/3">
+                     <p class="card-address text-xxs leading-tight">Alamat Sekolah</p>
+                     <p class="card-phone text-xxs leading-tight">Telepon Sekolah</p>
+                </div>
+                <div class="w-1/3 flex flex-col items-center">
+                    <img class="card-signature h-8 mb-1" src="https://placehold.co/150x50/FFFFFF/FFFFFF?text=." alt="Ttd">
+                    <p class="card-headmaster-name font-bold border-t-2 border-white w-full text-center">Kepala Sekolah</p>
+                </div>
+                <div class="absolute bottom-1 right-1">
+                    <canvas class="card-qrcode w-12 h-12 bg-white p-1 rounded-sm"></canvas>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <script type="module">
+        // Catatan: Karena ini adalah simulasi di browser tanpa backend nyata,
+        // data akan disimpan di localStorage. Untuk produksi, ganti dengan
+        // panggilan API ke Firebase Firestore dan Storage.
+        
+        // --- State Aplikasi (Simulasi Database) ---
+        let state = {
+            currentUser: null, // 'admin' atau {nisn: '...'}
+            settings: {
+                schoolName: 'VAN KARTU',
+                schoolAddress: 'Jl. Pendidikan No. 1, Jakarta',
+                schoolPhone: '021-1234567',
+                logoUrl: 'https://iili.io/FsvxSNj.png',
+                headmasterName: 'Ferdiansyah, M.Pd.',
+                signatureUrl: 'https://placehold.co/200x60/FFFFFF/FFFFFF?text=.',
+                cardBgUrl: 'https://placehold.co/3370x2125/003366/FFFFFF?text=Desain+Kartu',
+            },
+            students: {
+                // Contoh data siswa
+                '0012345678': { id: '0012345678', name: 'Budi Santoso', nis: '12345', gender: 'Laki-laki', dob: '2008-07-15', photoUrl: 'https://placehold.co/200x250/AABBCC/FFFFFF?text=Budi' },
+                '0087654321': { id: '0087654321', name: 'Citra Lestari', nis: '12346', gender: 'Perempuan', dob: '2009-03-22', photoUrl: 'https://placehold.co/200x250/FFAABB/FFFFFF?text=Citra' },
+            }
+        };
+
+        // --- Fungsi Bantuan ---
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        function showLoading(text = 'Memproses...') {
+            $('#loading-text').textContent = text;
+            $('#loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            $('#loading-overlay').classList.add('hidden');
+        }
+        
+        function showPage(pageId) {
+            ['login-page', 'admin-dashboard', 'student-dashboard'].forEach(id => {
+                $(`#${id}`).classList.add('hidden');
+            });
+            $(`#${pageId}`).classList.remove('hidden');
+        }
+        
+        function showTab(tabId) {
+            $$('.tab-content').forEach(el => el.classList.add('hidden'));
+            $(`#${tabId}`).classList.remove('hidden');
+            $$('.tab-link').forEach(el => el.classList.remove('active-tab', 'text-blue-600', 'border-blue-600'));
+            $$('.tab-link').forEach(el => {
+                if(el.dataset.tab === tabId) {
+                    el.classList.add('active-tab', 'text-blue-600', 'border-blue-600');
+                } else {
+                    el.classList.add('text-gray-500', 'border-transparent', 'hover:text-gray-700', 'hover:border-gray-300');
+                }
+            });
+        }
+        
+        // Simulasi upload file ke storage dan mendapatkan URL
+        async function uploadFile(file) {
+            if (!file) return null;
+            showLoading(`Mengunggah ${file.name}...`);
+            // Simulasi delay upload
+            await new Promise(resolve => setTimeout(resolve, 1000)); 
+            const reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // --- Fungsi Render ---
+        function renderStudentTable() {
+            const tbody = $('#student-table-body');
+            const searchTerm = $('#search-student').value.toLowerCase();
+            tbody.innerHTML = '';
+            Object.values(state.students)
+                .filter(s => s.name.toLowerCase().includes(searchTerm) || s.id.includes(searchTerm))
+                .forEach(student => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b hover:bg-gray-50';
+                    tr.innerHTML = `
+                        <td class="py-2 px-4"><img src="${student.photoUrl || 'https://placehold.co/40x50/CCCCCC/FFFFFF?text=N/A'}" class="w-10 h-12 object-cover rounded"></td>
+                        <td class="py-2 px-4">${student.name}</td>
+                        <td class="py-2 px-4">${student.id}</td>
+                        <td class="py-2 px-4">${student.nis}</td>
+                        <td class="py-2 px-4">${student.gender}</td>
+                        <td class="py-2 px-4">${student.dob}</td>
+                        <td class="py-2 px-4 text-center">
+                            <button class="edit-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${student.id}"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn text-red-500 hover:text-red-700" data-id="${student.id}"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+        }
+        
+        function renderSettings() {
+            const settings = state.settings;
+            $('#setting-school-name').value = settings.schoolName;
+            $('#setting-school-address').value = settings.schoolAddress;
+            $('#setting-school-phone').value = settings.schoolPhone;
+            $('#setting-headmaster-name').value = settings.headmasterName;
+            
+            // Update logo dan nama sekolah di berbagai tempat
+            $$('#login-logo, #admin-logo, #student-logo').forEach(el => el.src = settings.logoUrl);
+            $$('#login-school-name, #admin-school-name, #student-school-name').forEach(el => el.textContent = settings.schoolName);
+        }
+
+        function renderPrintStudentList() {
+            const listContainer = $('#print-student-list');
+            listContainer.innerHTML = '';
+            Object.values(state.students).forEach(student => {
+                const div = document.createElement('div');
+                div.className = 'border p-2 rounded-lg flex items-center space-x-2 cursor-pointer hover:bg-blue-50';
+                div.innerHTML = `
+                    <input type="checkbox" class="print-checkbox" data-id="${student.id}">
+                    <img src="${student.photoUrl || 'https://placehold.co/40x50/CCCCCC/FFFFFF?text=N/A'}" class="w-8 h-10 object-cover rounded-sm">
+                    <span class="text-sm">${student.name}</span>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        function createCardElement(student) {
+            const template = $('#card-template').content.cloneNode(true);
+            const card = template.querySelector('.card-container');
+            const settings = state.settings;
+
+            card.style.backgroundImage = `url('${settings.cardBgUrl}')`;
+            card.querySelector('.card-logo').src = settings.logoUrl;
+            card.querySelector('.card-school-name').textContent = settings.schoolName;
+            card.querySelector('.card-address').textContent = settings.schoolAddress;
+            card.querySelector('.card-phone').textContent = settings.schoolPhone;
+            
+            card.querySelector('.card-photo').src = student.photoUrl || 'https://placehold.co/200x250/CCCCCC/FFFFFF?text=N/A';
+            card.querySelector('.card-name').textContent = student.name;
+            card.querySelector('.card-nis-nisn').textContent = `${student.nis} / ${student.id}`;
+            card.querySelector('.card-dob').textContent = student.dob;
+            card.querySelector('.card-gender').textContent = student.gender;
+
+            card.querySelector('.card-signature').src = settings.signatureUrl;
+            card.querySelector('.card-headmaster-name').textContent = settings.headmasterName;
+
+            const qrCanvas = card.querySelector('.card-qrcode');
+            // Ganti URL ini dengan URL verifikasi publik Anda
+            const verificationUrl = `https://example.com/verify?nisn=${student.id}`;
+            new QRious({
+                element: qrCanvas,
+                value: verificationUrl,
+                size: 128,
+                level: 'H'
+            });
+
+            return card;
+        }
+
+        function renderStudentDashboard() {
+            const student = state.students[state.currentUser.nisn];
+            if (!student) {
+                alert('Data siswa tidak ditemukan!');
+                logout();
+                return;
+            }
+            
+            renderSettings(); // Update logo & nama sekolah
+            
+            $('#student-name').textContent = student.name;
+            $('#student-nisn').textContent = student.id;
+            $('#student-nis').textContent = student.nis;
+            $('#student-dob-edit').value = student.dob;
+            $('#student-gender-edit').value = student.gender;
+
+            const cardPreviewContainer = $('#student-card-preview');
+            cardPreviewContainer.innerHTML = '';
+            cardPreviewContainer.appendChild(createCardElement(student));
+        }
+
+        // --- Logika Aplikasi ---
+        function login(username, password) {
+            if (username === 'Van64' && password === 'Van1909') {
+                state.currentUser = 'admin';
+                showPage('admin-dashboard');
+                showTab('manage-students');
+                renderStudentTable();
+                renderSettings();
+                renderPrintStudentList();
+            } else {
+                const student = state.students[username];
+                if (student && password === username) { // Password = NISN
+                    state.currentUser = { nisn: username };
+                    showPage('student-dashboard');
+                    renderStudentDashboard();
+                } else {
+                    $('#login-error').textContent = 'Username atau Password salah.';
+                    $('#login-error').classList.remove('hidden');
+                }
+            }
+        }
+
+        function logout() {
+            state.currentUser = null;
+            $('#login-form').reset();
+            $('#login-error').classList.add('hidden');
+            showPage('login-page');
+        }
+
+        function saveState() {
+            localStorage.setItem('vanKartuState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const savedState = localStorage.getItem('vanKartuState');
+            if (savedState) {
+                state = JSON.parse(savedState);
+            }
+        }
+
+        // --- Event Listeners ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderSettings(); // Tampilkan info sekolah di halaman login
+
+            // --- Login ---
+            $('#login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = $('#username').value;
+                const password = $('#password').value;
+                login(username, password);
+            });
+
+            // --- Logout ---
+            $('#logout-btn').addEventListener('click', logout);
+            $('#student-logout-btn').addEventListener('click', logout);
+
+            // --- Navigasi Tab Admin ---
+            $$('.tab-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showTab(e.target.dataset.tab);
+                });
+            });
+
+            // --- Manajemen Siswa (Admin) ---
+            $('#search-student').addEventListener('input', renderStudentTable);
+
+            $('#add-student-btn').addEventListener('click', () => {
+                $('#student-form').reset();
+                $('#student-id').value = '';
+                $('#modal-title').textContent = 'Tambah Siswa Baru';
+                $('#student-modal').classList.remove('hidden');
+            });
+
+            $('#cancel-student-modal').addEventListener('click', () => {
+                $('#student-modal').classList.add('hidden');
+            });
+
+            $('#student-table-body').addEventListener('click', async (e) => {
+                if (e.target.closest('.edit-btn')) {
+                    const id = e.target.closest('.edit-btn').dataset.id;
+                    const student = state.students[id];
+                    $('#student-id').value = student.id;
+                    $('#student-name-input').value = student.name;
+                    $('#student-nisn-input').value = student.id;
+                    $('#student-nis-input').value = student.nis;
+                    $('#student-dob-input').value = student.dob;
+                    $('#student-gender-input').value = student.gender;
+                    $('#modal-title').textContent = 'Edit Data Siswa';
+                    $('#student-modal').classList.remove('hidden');
+                }
+                if (e.target.closest('.delete-btn')) {
+                    const id = e.target.closest('.delete-btn').dataset.id;
+                    if (confirm(`Apakah Anda yakin ingin menghapus siswa ${state.students[id].name}?`)) {
+                        delete state.students[id];
+                        saveState();
+                        renderStudentTable();
+                        renderPrintStudentList();
+                    }
+                }
+            });
+            
+            $('#student-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showLoading('Menyimpan data...');
+                const id = $('#student-id').value;
+                const nisn = $('#student-nisn-input').value;
+                const photoFile = $('#student-photo-input').files[0];
+                let photoUrl = id ? state.students[id]?.photoUrl : null;
+
+                if (photoFile) {
+                    photoUrl = await uploadFile(photoFile);
+                }
+
+                const studentData = {
+                    id: nisn,
+                    name: $('#student-name-input').value,
+                    nis: $('#student-nis-input').value,
+                    dob: $('#student-dob-input').value,
+                    gender: $('#student-gender-input').value,
+                    photoUrl: photoUrl || 'https://placehold.co/200x250/CCCCCC/FFFFFF?text=N/A'
+                };
+
+                if (id && id !== nisn) { // Jika NISN diubah, hapus data lama
+                    delete state.students[id];
+                }
+                state.students[nisn] = studentData;
+                
+                saveState();
+                renderStudentTable();
+                renderPrintStudentList();
+                $('#student-modal').classList.add('hidden');
+                hideLoading();
+            });
+
+            // --- Upload Data (Admin) ---
+            $('#download-template-btn').addEventListener('click', () => {
+                const worksheet = XLSX.utils.json_to_sheet([{
+                    NAMA_LENGKAP: '',
+                    NISN: '',
+                    NIS: '',
+                    JENIS_KELAMIN: 'Laki-laki/Perempuan',
+                    TANGGAL_LAHIR: 'YYYY-MM-DD'
+                }]);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+                XLSX.writeFile(workbook, "Template_Data_Siswa.xlsx");
+            });
+
+            $('#upload-excel-btn').addEventListener('click', () => {
+                const file = $('#excel-file-input').files[0];
+                if (!file) {
+                    alert('Pilih file Excel terlebih dahulu!');
+                    return;
+                }
+                showLoading('Membaca file Excel...');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    let count = 0;
+                    json.forEach(row => {
+                        const nisn = String(row.NISN);
+                        if(nisn) {
+                            state.students[nisn] = {
+                                id: nisn,
+                                name: row.NAMA_LENGKAP,
+                                nis: String(row.NIS),
+                                gender: row.JENIS_KELAMIN,
+                                dob: row.TANGGAL_LAHIR, // Perlu format YYYY-MM-DD
+                                photoUrl: state.students[nisn]?.photoUrl || 'https://placehold.co/200x250/CCCCCC/FFFFFF?text=N/A'
+                            };
+                            count++;
+                        }
+                    });
+                    saveState();
+                    renderStudentTable();
+                    renderPrintStudentList();
+                    hideLoading();
+                    alert(`${count} data siswa berhasil diimpor!`);
+                };
+                reader.readAsArrayBuffer(file);
+            });
+
+            $('#upload-photos-btn').addEventListener('click', async () => {
+                const files = $('#photo-files-input').files;
+                if (files.length === 0) {
+                    alert('Pilih file foto terlebih dahulu!');
+                    return;
+                }
+                showLoading(`Mengunggah ${files.length} foto...`);
+                for (const file of files) {
+                    const nisn = file.name.split('.')[0];
+                    if (state.students[nisn]) {
+                        const photoUrl = await uploadFile(file);
+                        state.students[nisn].photoUrl = photoUrl;
+                    }
+                }
+                saveState();
+                renderStudentTable();
+                hideLoading();
+                alert('Upload foto selesai!');
+            });
+
+            // --- Pengaturan (Admin) ---
+            $('#save-settings-btn').addEventListener('click', async () => {
+                showLoading('Menyimpan pengaturan...');
+                const logoFile = $('#setting-logo-input').files[0];
+                const signatureFile = $('#setting-signature-input').files[0];
+                const cardBgFile = $('#setting-card-bg-input').files[0];
+
+                if (logoFile) state.settings.logoUrl = await uploadFile(logoFile);
+                if (signatureFile) state.settings.signatureUrl = await uploadFile(signatureFile);
+                if (cardBgFile) state.settings.cardBgUrl = await uploadFile(cardBgFile);
+                
+                state.settings.schoolName = $('#setting-school-name').value;
+                state.settings.schoolAddress = $('#setting-school-address').value;
+                state.settings.schoolPhone = $('#setting-school-phone').value;
+                state.settings.headmasterName = $('#setting-headmaster-name').value;
+                
+                saveState();
+                renderSettings();
+                hideLoading();
+                alert('Pengaturan berhasil disimpan!');
+            });
+            
+            // --- Cetak Kartu (Admin) ---
+            $('#select-all-students-btn').addEventListener('click', () => {
+                $$('.print-checkbox').forEach(cb => cb.checked = true);
+            });
+            $('#deselect-all-students-btn').addEventListener('click', () => {
+                $$('.print-checkbox').forEach(cb => cb.checked = false);
+            });
+
+            $('#print-selected-btn').addEventListener('click', async () => {
+                const selectedIds = Array.from($$('.print-checkbox:checked')).map(cb => cb.dataset.id);
+                if (selectedIds.length === 0) {
+                    alert('Pilih siswa yang akan dicetak kartunya!');
+                    return;
+                }
+                
+                showLoading(`Menyiapkan ${selectedIds.length} kartu untuk dicetak...`);
+                
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [560, 320] // Ukuran kartu
+                });
+
+                for (let i = 0; i < selectedIds.length; i++) {
+                    const studentId = selectedIds[i];
+                    const student = state.students[studentId];
+                    const cardElement = createCardElement(student);
+                    
+                    // Tambahkan ke body agar bisa dirender oleh html2canvas
+                    document.body.appendChild(cardElement);
+                    
+                    const canvas = await html2canvas(cardElement, { scale: 2 });
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    if (i > 0) {
+                        pdf.addPage();
+                    }
+                    pdf.addImage(imgData, 'PNG', 0, 0, 560, 320);
+                    
+                    // Hapus dari body setelah selesai
+                    document.body.removeChild(cardElement);
+                }
+                
+                pdf.save('Kartu_Pelajar.pdf');
+                hideLoading();
+            });
+            
+            // --- Dasbor Siswa ---
+            $('#save-student-changes-btn').addEventListener('click', async () => {
+                showLoading('Menyimpan perubahan...');
+                const nisn = state.currentUser.nisn;
+                const student = state.students[nisn];
+                const photoFile = $('#student-photo-edit').files[0];
+                
+                if (photoFile) {
+                    student.photoUrl = await uploadFile(photoFile);
+                }
+                
+                student.dob = $('#student-dob-edit').value;
+                student.gender = $('#student-gender-edit').value;
+                
+                saveState();
+                renderStudentDashboard();
+                hideLoading();
+                alert('Perubahan berhasil disimpan!');
+            });
+
+            $('#download-card-png-btn').addEventListener('click', async () => {
+                const cardElement = $('#student-card-preview').querySelector('.card-container');
+                const canvas = await html2canvas(cardElement, { scale: 3 });
+                const link = document.createElement('a');
+                link.download = `kartu-pelajar-${state.currentUser.nisn}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+
+            $('#download-card-pdf-btn').addEventListener('click', async () => {
+                const cardElement = $('#student-card-preview').querySelector('.card-container');
+                const canvas = await html2canvas(cardElement, { scale: 3 });
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [560, 320]
+                });
+                pdf.addImage(imgData, 'PNG', 0, 0, 560, 320);
+                pdf.save(`kartu-pelajar-${state.currentUser.nisn}.pdf`);
+            });
+
+        });
+    </script>
+</body>
+</html>
